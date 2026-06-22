@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMBU Portal — Staff Planning</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        /* ─── Global Reset (FIXES OVERLAPPING & OVERFLOW) ───────────── */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* ─── Gold & White Luxury Tokens ───────────────────────────── */
+        :root {
+            --gold:        #d4af37;
+            --gold-light:  #f4d03f;
+            --gold-muted:  #c5a02e;
+            --pearl:       #ffffff;
+            --pearl-bg:    #fdfdfd;
+            --text-main:   #5c5c5c;
+            --text-heading: #2d2d2d;
+            --border-pearl:rgba(212, 175, 55, 0.15);
+            --transition:  cubic-bezier(0.23, 1, 0.32, 1);
+            --danger:      #e74c3c;
+            --success:     #27ae60;
+            --shadow-premium: 0 20px 40px rgba(212, 175, 55, 0.05), 0 0 0 1px rgba(212, 175, 55, 0.08);
+            
+            /* Sidebar Widths */
+            --sidebar-width: 80px;
+            --sidebar-expanded: 280px;
+        }
+
+        /* ─── Base Layout ───────────────────────────────────────────── */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fdfdfd;
+            display: flex;
+            min-height: 100vh;
+            color: var(--text-main);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ─── Slim Iconic Sidebar ───────────────────────────────────── */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: #ffffff;
+            color: var(--text-heading);
+            padding: 40px 16px;
+            position: fixed;
+            top: 0; left: 0; bottom: 0;
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            border-right: 1px solid var(--border-pearl);
+            box-shadow: 10px 0 40px rgba(212, 175, 55, 0.03);
+            transition: width 0.4s var(--transition);
+            overflow: hidden;
+        }
+
+        .sidebar:hover { width: var(--sidebar-expanded); align-items: flex-start; padding: 40px 24px; }
+
+        .sidebar-brand {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--text-heading);
+            margin-bottom: 48px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            white-space: nowrap;
+            width: 100%;
+            justify-content: center;
+        }
+        .sidebar:hover .sidebar-brand { justify-content: flex-start; }
+
+        .sidebar-brand i { color: var(--gold); font-size: 1.6rem; min-width: 32px; text-align: center; }
+        .brand-text { opacity: 0; transition: opacity 0.3s ease; display: none; }
+        .sidebar:hover .brand-text { opacity: 1; display: inline; }
+
+        .sidebar-nav { width: 100%; }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 14px;
+            color: #bbb;
+            text-decoration: none;
+            border-radius: 16px;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+            transition: all 0.3s var(--transition);
+            white-space: nowrap;
+            width: 100%;
+            justify-content: center;
+        }
+        .sidebar:hover .nav-item { justify-content: flex-start; padding: 14px 18px; }
+
+        .nav-item i { font-size: 1.2rem; min-width: 32px; text-align: center; }
+        .nav-text { opacity: 0; transition: opacity 0.3s ease; display: none; }
+        .sidebar:hover .nav-text { opacity: 1; display: inline; }
+
+        .nav-item:hover { color: var(--gold-muted); background: rgba(212, 175, 55, 0.05); }
+
+        .nav-item.active {
+            background: #fff;
+            color: var(--gold-muted);
+            font-weight: 700;
+            border: 1px solid var(--border-pearl);
+            box-shadow: 0 10px 20px rgba(212, 175, 55, 0.05);
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-pearl);
+            width: 100%;
+        }
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            color: var(--danger);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.85rem;
+            padding: 14px;
+            border-radius: 16px;
+            transition: all 0.3s ease;
+            width: 100%;
+            justify-content: center;
+            white-space: nowrap;
+        }
+        .sidebar:hover .logout-btn { justify-content: flex-start; padding: 14px 18px; }
+        .logout-btn:hover { background: rgba(231, 76, 60, 0.05); }
+
+        /* ─── Main Workspace ────────────────────────────────────────── */
+        .main-workspace {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 48px 80px;
+            max-width: 1600px;
+            transition: margin-left 0.4s var(--transition);
+        }
+
+        /* ─── Gold & White Cards ────────────────────────────────────── */
+        .card {
+            background: #fff;
+            padding: 40px;
+            border-radius: 32px;
+            box-shadow: var(--shadow-premium);
+            border: 1px solid var(--border-pearl);
+            margin-bottom: 40px;
+            animation: fadeSlideUp 0.8s var(--transition);
+        }
+
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: var(--text-heading);
+            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .card-title i { color: var(--gold); font-size: 1.6rem; }
+
+        /* ─── Form Elements ─────────────────────────────────────────── */
+        .form-grid { display: grid; gap: 32px; }
+        .form-row { display: flex; gap: 24px; flex-wrap: wrap; }
+        .form-group { flex: 1; min-width: 240px; }
+
+        .form-label {
+            display: block;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: #bbb;
+            margin-bottom: 12px;
+            margin-left: 2px;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 14px 18px;
+            background: #ffffff;
+            border: 1px solid #f0f0f0;
+            border-radius: 14px;
+            font-size: 0.95rem;
+            color: var(--text-heading);
+            transition: all 0.3s var(--transition);
+            height: 52px;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 10px 20px rgba(212, 175, 55, 0.05);
+        }
+
+        .station-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+            background: #fff;
+            padding: 24px;
+            border-radius: 20px;
+            border: 1px solid var(--border-pearl);
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #888;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .checkbox-label:hover { background: rgba(212, 175, 55, 0.03); color: var(--gold-muted); }
+
+        .checkbox-input {
+            width: 18px; height: 18px;
+            accent-color: var(--gold);
+        }
+
+        /* ─── Premium Buttons ───────────────────────────────────────── */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 28px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            border-radius: 100px;
+            cursor: pointer;
+            border: 1px solid var(--border-pearl);
+            transition: all 0.4s var(--transition);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--gold-muted), var(--gold));
+            color: #fff;
+            border: none;
+            box-shadow: 0 10px 20px rgba(212, 175, 55, 0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(212, 175, 55, 0.3);
+        }
+
+        .btn-secondary { background: #fff; color: #999; }
+        .btn-secondary:hover { color: var(--gold-muted); border-color: var(--gold-muted); }
+
+        /* ─── Toolbar & Filters ─────────────────────────────────────── */
+        .toolbar-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            gap: 24px;
+        }
+
+        .filter-group {
+            display: flex;
+            background: #fff;
+            padding: 4px;
+            border-radius: 100px;
+            gap: 4px;
+            border: 1px solid var(--border-pearl);
+        }
+
+        .filter-btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 100px;
+            font-weight: 700;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            background: transparent;
+            color: #ccc;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn.active-btn {
+            background: var(--gold);
+            color: #fff;
+            box-shadow: 0 4px 10px rgba(212, 175, 55, 0.2);
+        }
+
+        .search-box { display: flex; gap: 12px; align-items: center; }
+
+        /* ─── Premium Table ─────────────────────────────────────────── */
+        .table-container {
+            background: #fff;
+            border-radius: 32px;
+            box-shadow: var(--shadow-premium);
+            border: 1px solid var(--border-pearl);
+            overflow: hidden;
+        }
+
+        .enterprise-table { width: 100%; border-collapse: collapse; text-align: left; }
+
+        .enterprise-table th {
+            background: #fff;
+            padding: 24px;
+            color: #ccc;
+            font-weight: 700;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            border-bottom: 1px solid #f8f8f8;
+        }
+
+        .enterprise-table td {
+            padding: 24px;
+            font-size: 0.9rem;
+            border-bottom: 1px solid #f8f8f8;
+            color: var(--text-main);
+        }
+
+        .roster-row:hover { background: rgba(212, 175, 55, 0.02); }
+
+        .status-badge {
+            font-size: 0.7rem;
+            padding: 6px 16px;
+            border-radius: 100px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+
+        .badge-active { background: rgba(39, 174, 96, 0.05); color: var(--success); border-color: rgba(39, 174, 96, 0.1); }
+        .badge-pending { background: rgba(212, 175, 55, 0.05); color: var(--gold-muted); border-color: rgba(212, 175, 55, 0.1); }
+
+        .role-pill, .agency-pill {
+            background: #fff;
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #bbb;
+            border: 1px solid #f0f0f0;
+        }
+
+        .agency-pill { border-color: rgba(212, 175, 55, 0.3); color: var(--gold-muted); background: rgba(212, 175, 55, 0.01); }
+
+        .action-btn-pill {
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-edit { background: #fff; color: var(--gold-muted); border: 1px solid var(--border-pearl); }
+        .btn-edit:hover { background: var(--gold); color: #fff; border-color: var(--gold); }
+        .btn-delete { background: rgba(231, 76, 60, 0.05); color: var(--danger); }
+        .btn-delete:hover { background: var(--danger); color: #fff; }
+
+        /* ─── Modal & Toasts ────────────────────────────────────────── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0; pointer-events: none;
+            transition: all 0.4s var(--transition);
+            z-index: 1000;
+        }
+
+        .modal-overlay.open { opacity: 1; pointer-events: auto; }
+
+        .modal-window {
+            background: #fff;
+            padding: 48px;
+            border-radius: 40px;
+            width: 90%;
+            max-width: 800px;
+            box-shadow: 0 40px 100px rgba(212, 175, 55, 0.1);
+            transform: scale(0.9) translateY(20px);
+            transition: all 0.4s var(--transition);
+            border: 1px solid var(--border-pearl);
+        }
+
+        .modal-overlay.open .modal-window { transform: scale(1) translateY(0); }
+
+        .modal-header {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.4rem;
+            font-weight: 600;
+            color: var(--text-heading);
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-pearl);
+            margin-bottom: 32px;
+        }
+
+        #toast-container { position: fixed; top: 40px; right: 40px; z-index: 9999; display: flex; flex-direction: column; gap: 12px; }
+        .toast {
+            display: flex; align-items: center; gap: 16px; min-width: 340px;
+            padding: 20px 24px; border-radius: 20px; background: #fff;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1); font-weight: 700; font-size: 0.85rem;
+            border-left: 6px solid var(--gold); transform: translateX(120%);
+            transition: transform 0.4s var(--transition);
+        }
+        .toast.show { transform: translateX(0); }
+        .toast-success { border-left-color: var(--success); color: var(--success); }
+        .toast-error { border-left-color: var(--danger); color: var(--danger); }
+    </style>
+</head>
+
+<body>
+
+    <div id="toast-container"></div>
+
+    <div id="flask-flash-messages" style="display: none;">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <span class="flash-delivery" data-category="{{ category }}" data-message="{{ message }}"></span>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <i class="fa-solid fa-crown"></i>
+            <span class="brand-text">EMBU Portal</span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('admin.Admin_Dashboard') }}" class="nav-item active">
+                <i class="fa-solid fa-users"></i>
+                <span class="nav-text">Staff Directory</span>
+            </a>
+            <a href="{{ url_for('shifts.admin_shift_dashboard') }}" class="nav-item">
+                <i class="fa-solid fa-calendar-check"></i>
+                <span class="nav-text">Schedule Grid</span>
+            </a>
+            <a href="{{ url_for('shifts.admin_shift_settings') }}" class="nav-item">
+                <i class="fa-solid fa-gears"></i>
+                <span class="nav-text">Portal Settings</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="{{ url_for('auth.logout') }}" class="logout-btn">
+                <i class="fa-solid fa-power-off"></i>
+                <span class="nav-text">Terminate Session</span>
+            </a>
+        </div>
+    </aside>
+
+    <main class="main-workspace">
+
+        <div class="card">
+            <h2 class="card-title">
+                <i class="fa-solid fa-user-plus"></i> Executive Registration
+            </h2>
+            <form action="{{ url_for('admin.add_user') }}" method="POST" class="form-grid">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" name="user_name" placeholder="Ex: John Doe" required class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" name="email" placeholder="john@embu.com" required class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Initial Password</label>
+                        <input type="password" name="user_password" required class="form-input">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">System Access Role</label>
+                        <select name="user_role" class="form-select">
+                            <option value="user">User</option>
+                            <option value="manager">Manager</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Company Ranking</label>
+                        <select name="ranking" class="form-select">
+                            <option value="part_time">Part Time</option>
+                            <option value="in_house">In House</option>
+                            <option value="permanent_casual">Permanent Casual</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Affiliated Agency / Division</label>
+                        <select name="agency_id" class="form-select">
+                            {% for agency in agencies %}
+                            <option value="{{ agency.agency_id }}">{{ agency.agency_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Credits</label>
+                        <input type="number" name="credits" value="0" min="0" class="form-input">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="form-label">Assign Floor Stations</label>
+                    <div class="station-container">
+                        {% for pos in positions %}
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="positions" value="{{ pos.position_id }}" class="checkbox-input">
+                            {{ pos.position_name }}
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 10px;">
+                    <label class="checkbox-label" style="font-weight: 700; color: var(--gold-muted);">
+                        <input type="checkbox" name="is_approved" checked class="checkbox-input">
+                        Approve Instantly
+                    </label>
+                    <button type="submit" class="btn btn-primary">
+                        Register Account
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="toolbar-wrapper">
+            <div class="filter-group">
+                <button onclick="filterStaff('all')" class="filter-btn active-btn">All Staff</button>
+                <button onclick="filterStaff('part timer')" class="filter-btn">Part Timers</button>
+                <button onclick="filterStaff('in house')" class="filter-btn">In-House</button>
+                <button onclick="filterStaff('others')" class="filter-btn">Others</button>
+            </div>
+
+            <form action="{{ url_for('admin.Admin_Dashboard') }}" method="GET" class="search-box">
+                <input type="text" name="search" value="{{ search_query }}" placeholder="Search by name..." class="form-input" style="min-width: 300px; border-color: var(--border-pearl);">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-magnifying-glass"></i> Search
+                </button>
+                {% if search_query %}
+                <a href="{{ url_for('admin.Admin_Dashboard') }}" class="btn btn-secondary">Reset</a>
+                {% endif %}
+            </form>
+        </div>
+
+        <div class="table-container">
+            <table class="enterprise-table">
+                <thead>
+                    <tr>
+                        <th>Employee</th>
+                        <th>Role</th>
+                        <th>Rank</th>
+                        <th>Agency</th>
+                        <th style="text-align: center;">Credits</th>
+                        <th>Stations</th>
+                        <th style="text-align: center;">Status</th>
+                        <th style="text-align: center;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="roster-body">
+                    {% for emp in employees %}
+                    <tr class="roster-row" data-ranking="{{ emp.ranking|lower }}" data-agency-name="{{ emp.agency_name|lower }}" data-stations="{{ emp.positions_list|lower if emp.positions_list else '' }}">
+                        <td>
+                            <div style="font-weight: 700; color: var(--text-heading);">{{ emp.user_name }}</div>
+                            <div style="font-size: 0.75rem; color: #ccc;">{{ emp.email }}</div>
+                        </td>
+                        <td><span class="role-pill">{{ emp.user_role }}</span></td>
+                        <td style="text-transform: capitalize; font-weight: 600;">{{ emp.ranking|replace('_', ' ') }}</td>
+                        <td><span class="agency-pill">{{ emp.agency_name }}</span></td>
+                        <td style="font-weight: 800; color: var(--gold-muted); text-align: center;">{{ emp.credits }}</td>
+                        <td style="color: var(--gold-muted); font-weight: 600; text-transform: capitalize;">
+                            {{ emp.positions_list if emp.positions_list else '—' }}
+                        </td>
+                        <td style="text-align: center;">
+                            {% if emp.is_approved %}
+                            <button type="button" onclick="toggleStatus(this)" data-id="{{ emp.user_id }}" class="status-badge badge-active">
+                                <i class="fa-solid fa-check"></i> Active
+                            </button>
+                            {% else %}
+                            <button type="button" onclick="toggleStatus(this)" data-id="{{ emp.user_id }}" class="status-badge badge-pending">
+                                <i class="fa-solid fa-clock"></i> Pending
+                            </button>
+                            {% endif %}
+                        </td>
+                        <td style="text-align: center;">
+                            <div style="display: flex; gap: 8px; justify-content: center;">
+                                <button type="button" class="action-btn-pill btn-edit" 
+                                        data-id="{{ emp.user_id }}" 
+                                        data-name="{{ emp.user_name }}" 
+                                        data-email="{{ emp.email }}" 
+                                        data-role="{{ emp.user_role }}" 
+                                        data-ranking="{{ emp.ranking }}" 
+                                        data-agency="{{ emp.agency_id }}"
+                                        data-credits="{{ emp.credits }}" 
+                                        data-approved="{{ emp.is_approved }}" 
+                                        data-positions="{{ emp.position_ids_list if emp.position_ids_list else '' }}" 
+                                        onclick="openEditModal(this)">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                                <form action="{{ url_for('admin.delete_user', user_id=emp.user_id) }}" method="POST" onsubmit="return handleDeletion(event);" style="margin: 0;">
+                                    <button type="submit" class="action-btn-pill btn-delete">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" style="padding: 60px; text-align: center; color: #eee; font-style: italic;">
+                            <i class="fa-solid fa-inbox" style="font-size: 2rem; display: block; margin-bottom: 12px;"></i>
+                            No staff records found.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <div id="editModal" class="modal-overlay">
+        <div class="modal-window">
+            <h2 id="modalTitle" class="modal-header">Modify Account</h2>
+            <form id="editForm" method="POST" class="form-grid">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" id="modal_name" name="user_name" required class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" id="modal_email" name="email" required class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Update Password</label>
+                        <input type="password" id="modal_password" name="user_password" placeholder="Leave blank to keep" class="form-input">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Role</label>
+                        <select id="modal_role" name="user_role" class="form-select">
+                            <option value="user">User</option>
+                            <option value="manager">Manager</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Ranking</label>
+                        <select id="modal_ranking" name="ranking" class="form-select">
+                            <option value="part_time">Part Time</option>
+                            <option value="in_house">In House</option>
+                            <option value="permanent_casual">Permanent Casual</option>
+                            <option value="trainee">Trainee</option>
+                            <option value="full_time">Full Time</option>
+                            <option value="asst_manager">Asst Manager</option>
+                            <option value="operating_executive">Op Executive</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Affiliated Agency / Division</label>
+                        <select id="modal_agency" name="agency_id" class="form-select">
+                            {% for agency in agencies %}
+                            <option value="{{ agency.agency_id }}">{{ agency.agency_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Credits</label>
+                        <input type="number" id="modal_credits" name="credits" min="0" class="form-input">
+                    </div>
+                </div>
+                <div>
+                    <label class="form-label">Stations</label>
+                    <div class="station-container">
+                        {% for pos in positions %}
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="positions" class="modal-position-checkbox checkbox-input" value="{{ pos.position_id }}">
+                            {{ pos.position_name }}
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 20px;">
+                    <label class="checkbox-label" style="font-weight: 700; color: var(--gold-muted);">
+                        <input type="checkbox" id="modal_is_approved" name="is_approved" class="checkbox-input">
+                        Account Approved
+                    </label>
+                    <div style="display: flex; gap: 12px;">
+                        <button type="button" onclick="closeEditModal()" class="btn btn-secondary">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `<span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 50);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 400);
+            }, 4000);
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.flash-delivery').forEach(el => {
+                showToast(el.getAttribute('data-message'), el.getAttribute('data-category') === 'success' ? 'success' : 'error');
+            });
+        });
+
+        function toggleStatus(button) {
+            const userId = button.getAttribute('data-id');
+            fetch(`/toggle_status/${userId}`, { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        button.innerHTML = data.new_status === 1 ? '<i class="fa-solid fa-check"></i> Active' : '<i class="fa-solid fa-clock"></i> Pending';
+                        button.className = `status-badge ${data.new_status === 1 ? 'badge-active' : 'badge-pending'}`;
+                        showToast('Status updated successfully.');
+                    }
+                });
+        }
+
+        function handleDeletion(e) { return confirm('Permanently delete this record?'); }
+
+        function openEditModal(btn) {
+            document.getElementById('editForm').action = `/edit_user/${btn.getAttribute('data-id')}`;
+            document.getElementById('modal_name').value = btn.getAttribute('data-name');
+            document.getElementById('modal_email').value = btn.getAttribute('data-email');
+            document.getElementById('modal_role').value = btn.getAttribute('data-role');
+            document.getElementById('modal_ranking').value = btn.getAttribute('data-ranking');
+            document.getElementById('modal_agency').value = btn.getAttribute('data-agency');
+            document.getElementById('modal_credits').value = btn.getAttribute('data-credits');
+            document.getElementById('modal_is_approved').checked = btn.getAttribute('data-approved') === 'True' || btn.getAttribute('data-approved') === '1';
+            
+            const posIds = btn.getAttribute('data-positions').split(',');
+            document.querySelectorAll('.modal-position-checkbox').forEach(cb => cb.checked = posIds.includes(cb.value));
+            document.getElementById('editModal').classList.add('open');
+        }
+
+        function closeEditModal() { document.getElementById('editModal').classList.remove('open'); }
+
+        function filterStaff(type) {
+            document.querySelectorAll('.roster-row').forEach(row => {
+                const rank = row.getAttribute('data-ranking');
+                const agency = row.getAttribute('data-agency-name');
+                const stations = row.getAttribute('data-stations');
+                
+                if (type === 'all') {
+                    row.style.display = '';
+                } else if (type === 'part timer') {
+                    row.style.display = (rank.includes('part') || stations.includes('part')) ? '' : 'none';
+                } else if (type === 'in house') {
+                    row.style.display = (agency === 'hotel') ? '' : 'none';
+                } else if (type === 'others') {
+                    row.style.display = (agency !== 'hotel') ? '' : 'none';
+                }
+            });
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active-btn'));
+            window.event.currentTarget.classList.add('active-btn');
+        }
+    </script>
+</body>
+</html>

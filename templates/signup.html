@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMBU Portal — Join the Command</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,400&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        /* ─── Reset & Core ────────────────────────────────────────── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --gold:        #d4af37;
+            --gold-light:  #f4d03f;
+            --gold-muted:  #c5a02e;
+            --pearl:       #ffffff;
+            --charcoal:    #111111;
+            --transition:  cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fafafa;
+            padding: 40px 0;
+        }
+
+        /* ─── Sophisticated Background Animation ───────────────────── */
+        .bg-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background: #fff;
+            overflow: hidden;
+        }
+
+        /* Morphing Liquid Gradients */
+        .liquid-layer {
+            position: absolute;
+            width: 150vmax;
+            height: 150vmax;
+            top: -25vmax;
+            left: -25vmax;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(212, 175, 55, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(212, 175, 55, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 1) 0%, transparent 60%),
+                radial-gradient(circle at 10% 80%, rgba(180, 150, 50, 0.08) 0%, transparent 30%);
+            filter: blur(60px);
+            animation: morphLiquid 25s ease-in-out infinite alternate;
+        }
+
+        @keyframes morphLiquid {
+            0%   { transform: translate(0, 0) rotate(0deg) scale(1); }
+            33%  { transform: translate(5%, -5%) rotate(5deg) scale(1.1); }
+            66%  { transform: translate(-2%, 8%) rotate(-3deg) scale(0.95); }
+            100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+        }
+
+        /* Floating Silk Ribbons (Animated SVG) */
+        .silk-ribbon {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        /* Drifting Golden Dust Particles */
+        .dust-container {
+            position: absolute;
+            inset: 0;
+            perspective: 1000px;
+        }
+
+        .particle {
+            position: absolute;
+            background: var(--gold);
+            border-radius: 50%;
+            opacity: 0;
+            filter: blur(1px);
+            animation: drift var(--dur) linear infinite;
+        }
+
+        @keyframes drift {
+            0%   { transform: translate(var(--sx), var(--sy)) translateZ(0); opacity: 0; }
+            20%  { opacity: 0.6; }
+            80%  { opacity: 0.6; }
+            100% { transform: translate(var(--ex), var(--ey)) translateZ(200px); opacity: 0; }
+        }
+
+        /* ─── Main Layout ───────────────────────────────────────────── */
+        .page-wrapper {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 480px;
+            padding: 24px;
+        }
+
+        /* ─── The Pearl Card ────────────────────────────────────────── */
+        .registration-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(50px) saturate(180%);
+            -webkit-backdrop-filter: blur(50px) saturate(180%);
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            padding: 64px 56px 52px;
+            box-shadow: 
+                0 40px 100px rgba(0,0,0,0.06),
+                0 0 0 1px rgba(212, 175, 55, 0.15),
+                inset 0 0 20px rgba(255,255,255,0.5);
+            
+            opacity: 0;
+            transform: scale(0.98) translateY(20px);
+            animation: cardReveal 1.2s var(--transition) forwards;
+        }
+
+        @keyframes cardReveal {
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        /* ─── Brand Identity ────────────────────────────────────────── */
+        .brand-section {
+            text-align: center;
+            margin-bottom: 44px;
+        }
+
+        .brand-logo-container {
+            margin-bottom: 24px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .brand-logo-ring {
+            position: absolute;
+            inset: -10px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 50%;
+            animation: ringRotate 15s linear infinite;
+        }
+
+        @keyframes ringRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .brand-logo {
+            width: 64px; height: 64px;
+            background: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 25px rgba(212, 175, 55, 0.15);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            position: relative;
+            z-index: 2;
+        }
+
+        .brand-logo svg { width: 28px; height: 28px; }
+
+        .brand-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.6rem;
+            font-weight: 300;
+            color: var(--charcoal);
+            letter-spacing: -0.01em;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .brand-title span { font-weight: 600; font-style: italic; color: var(--gold-muted); }
+
+        .brand-subtitle {
+            font-size: 0.65rem;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: #999;
+            font-weight: 600;
+        }
+
+        /* ─── Form Styling ──────────────────────────────────────────── */
+        .registration-form {
+            display: grid;
+            gap: 24px;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: #bbb;
+            margin-bottom: 8px;
+            margin-left: 2px;
+            transition: color 0.4s ease;
+        }
+
+        .input-wrapper {
+            position: relative;
+            border-bottom: 1.5px solid #eee;
+            transition: border-color 0.4s ease;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 2px;
+            background: transparent;
+            border: none;
+            font-size: 0.95rem;
+            color: var(--charcoal);
+            font-family: 'Inter', sans-serif;
+            transition: all 0.4s ease;
+        }
+
+        .form-input::placeholder { color: #ccc; font-weight: 300; }
+        .form-input:focus { outline: none; }
+
+        /* Custom Elegant Select Arrow Override */
+        select.form-input {
+            appearance: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23111111' viewBox='0 0 16 16'><path d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/></svg>");
+            background-repeat: no-repeat;
+            background-position: calc(100% - 4px) center;
+            padding-right: 24px;
+        }
+
+        select.form-input option {
+            background-color: var(--pearl);
+            color: var(--charcoal);
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Focus Underline Animation */
+        .input-focus-line {
+            position: absolute;
+            bottom: -1.5px;
+            left: 0;
+            width: 0;
+            height: 1.5px;
+            background: var(--gold);
+            transition: width 0.6s var(--transition);
+        }
+
+        .form-input:focus + .input-focus-line { width: 100%; }
+        .form-group:focus-within .form-label { color: var(--gold); }
+
+        /* ─── Submit Button ──────────────────────────────────────────── */
+        .btn-container {
+            margin-top: 12px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 18px;
+            background: var(--charcoal);
+            border: none;
+            border-radius: 100px;
+            color: #fff;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.5s var(--transition);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 45px rgba(0,0,0,0.18);
+            letter-spacing: 0.22em;
+        }
+
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.8s ease;
+        }
+
+        .submit-btn:hover::before { transform: translateX(100%); }
+
+        /* ─── Footer Links ───────────────────────────────────────────── */
+        .form-footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 32px;
+            border-top: 1px solid rgba(0,0,0,0.03);
+        }
+
+        .signin-text {
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        .signin-link {
+            color: var(--charcoal);
+            text-decoration: none;
+            font-weight: 600;
+            margin-left: 6px;
+            border-bottom: 1px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .signin-link:hover { border-bottom-color: var(--gold); color: var(--gold-muted); }
+
+        /* ─── Status Banners ─────────────────────────────────────────── */
+        .status-banner {
+            padding: 16px 20px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            margin-bottom: 32px;
+            text-align: center;
+            animation: bannerReveal 0.6s var(--transition);
+        }
+
+        @keyframes bannerReveal {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .error-banner {
+            background: rgba(214, 48, 49, 0.04);
+            border: 1px solid rgba(214, 48, 49, 0.1);
+            color: #d63031;
+        }
+
+        .success-banner {
+            background: rgba(39, 174, 96, 0.04);
+            border: 1px solid rgba(39, 174, 96, 0.1);
+            color: #27ae60;
+        }
+
+        .success-link {
+            display: inline-block;
+            margin-top: 12px;
+            color: #27ae60;
+            font-weight: 600;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="bg-canvas">
+        <div class="liquid-layer"></div>
+        
+        <svg class="silk-ribbon" viewBox="0 0 1000 1000" preserveAspectRatio="none">
+            <path d="M-100,500 Q250,300 500,500 T1100,500" fill="none" stroke="rgba(212,175,55,0.05)" stroke-width="2">
+                <animate attributeName="d" dur="10s" repeatCount="indefinite"
+                    values="M-100,500 Q250,300 500,500 T1100,500;
+                            M-100,500 Q250,700 500,500 T1100,500;
+                            M-100,500 Q250,300 500,500 T1100,500" />
+            </path>
+            <path d="M-100,600 Q250,400 500,600 T1100,600" fill="none" stroke="rgba(212,175,55,0.03)" stroke-width="1">
+                <animate attributeName="d" dur="15s" repeatCount="indefinite"
+                    values="M-100,600 Q250,400 500,600 T1100,600;
+                            M-100,600 Q250,800 500,600 T1100,600;
+                            M-100,600 Q250,400 500,600 T1100,600" />
+            </path>
+        </svg>
+
+        <div class="dust-container" id="dustContainer"></div>
+    </div>
+
+    <div class="page-wrapper">
+        <div class="registration-card">
+            
+            <div class="brand-section">
+                <div class="brand-logo-container">
+                    <div class="brand-logo-ring"></div>
+                    <div class="brand-logo">
+                        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M16 4L19.5 11.5H27L21 16.5L23.5 24L16 19.5L8.5 24L11 16.5L5 11.5H12.5L16 4Z" fill="var(--gold)"/>
+                        </svg>
+                    </div>
+                </div>
+                <h1 class="brand-title">EMBU <span>Hotel</span></h1>
+                <p class="brand-subtitle">Executive Registration</p>
+            </div>
+
+            {% if error %}
+            <div class="status-banner error-banner">
+                {{ error }}
+            </div>
+            {% endif %}
+
+            {% if success %}
+            <div class="status-banner success-banner">
+                {{ success }}
+                <br>
+                <a href="{{ url_for('auth.login') }}" class="success-link">Proceed to Login</a>
+            </div>
+            {% endif %}
+
+            {% if not success %}
+            <form action="{{ url_for('auth.signup') }}" method="POST" class="registration-form">
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <div class="input-wrapper">
+                        <input type="text" name="user_name" class="form-input" placeholder="e.g. Alex Tan" required>
+                        <div class="input-focus-line"></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <div class="input-wrapper">
+                        <input type="email" name="email" class="form-input" placeholder="name@embu.com" required>
+                        <div class="input-focus-line"></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Affiliated Agency / Division</label>
+                    <div class="input-wrapper">
+                        <select name="agency_id" class="form-input" required>
+                            <option value="1">Hotel (In-House Staff)</option>
+                            <option value="2">Starecruitz</option>
+                            <option value="3">TCC/DO</option>
+                            <option value="4">Giggle</option>
+                        </select>
+                        <div class="input-focus-line"></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <div class="input-wrapper">
+                        <input type="password" name="user_password" class="form-input" placeholder="Create a secure password" required>
+                        <div class="input-focus-line"></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Confirm Password</label>
+                    <div class="input-wrapper">
+                        <input type="password" name="confirm_password" class="form-input" placeholder="Repeat your password" required>
+                        <div class="input-focus-line"></div>
+                    </div>
+                </div>
+
+                <div class="btn-container">
+                    <button type="submit" class="submit-btn">
+                        Create Account
+                    </button>
+                </div>
+            </form>
+            {% endif %}
+
+            <div class="form-footer">
+                <p class="signin-text">
+                    Already an executive? <a href="{{ url_for('auth.login') }}" class="signin-link">Sign In</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Generate drifting dust particles
+        const container = document.getElementById('dustContainer');
+        const particleCount = 40;
+
+        for (let i = 0; i < particleCount; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            
+            const size = Math.random() * 3 + 1;
+            const sx = Math.random() * 100 + 'vw';
+            const sy = Math.random() * 100 + 'vh';
+            const ex = (Math.random() * 100 - 50) + 'px';
+            const ey = (Math.random() * 100 - 50) + 'px';
+            const dur = Math.random() * 10 + 10 + 's';
+            const delay = Math.random() * -20 + 's';
+
+            p.style.width = size + 'px';
+            p.style.height = size + 'px';
+            p.style.setProperty('--sx', sx);
+            p.style.setProperty('--sy', sy);
+            p.style.setProperty('--ex', ex);
+            p.style.setProperty('--ey', ey);
+            p.style.setProperty('--dur', dur);
+            p.style.animationDelay = delay;
+
+            container.appendChild(p);
+        }
+    </script>
+</body>
+</html>

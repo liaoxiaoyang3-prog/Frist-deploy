@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMBU Portal — Executive Schedule Grid</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --gold:         #a3801c;
+            --gold-light:  #f4d03f;
+            --gold-muted:  #735c10;
+            --pearl:       #ffffff;
+            --pearl-bg:    #f1f5f9;
+            --text-main:   #0f172a;
+            --text-heading:#020617;
+            --text-muted:  #334155;
+            --border-pearl:#cbd5e1;
+            --transition:  cubic-bezier(0.23, 1, 0.32, 1);
+            --shadow-premium: 0 10px 30px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.08);
+            --success:     #15803d;
+            --warning:     #b45309;
+            --danger:      #b91c1c;
+            --sidebar-width: 85px;
+            --sidebar-expanded: 280px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--pearl-bg);
+            display: flex;
+            height: 100vh;
+            max-height: 100vh;
+            overflow: hidden;
+            color: var(--text-main);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: #ffffff;
+            color: var(--text-heading);
+            padding: 40px 16px;
+            position: fixed;
+            top: 0; left: 0; bottom: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 1000;
+            border-right: 1px solid var(--border-pearl);
+            box-shadow: 10px 0 40px rgba(0, 0, 0, 0.01);
+            transition: width 0.4s var(--transition);
+            overflow: hidden;
+        }
+        .sidebar:hover { width: var(--sidebar-expanded); align-items: flex-start; padding: 40px 24px; }
+        .sidebar-brand {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--text-heading);
+            margin-bottom: 48px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            white-space: nowrap;
+            width: 100%;
+            justify-content: center;
+        }
+        .sidebar:hover .sidebar-brand { justify-content: flex-start; }
+        .sidebar-brand i { color: var(--gold); font-size: 1.6rem; min-width: 32px; text-align: center; }
+        .brand-text { opacity: 0; transition: opacity 0.3s ease; display: none; }
+        .sidebar:hover .brand-text { opacity: 1; display: inline; }
+        .sidebar-nav { width: 100%; }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 14px;
+            color: #475569;
+            text-decoration: none;
+            border-radius: 16px;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+            transition: all 0.3s var(--transition);
+            white-space: nowrap;
+            width: 100%;
+            justify-content: center;
+        }
+        .sidebar:hover .nav-item { justify-content: flex-start; padding: 14px 18px; }
+        .nav-item i { font-size: 1.2rem; min-width: 32px; text-align: center; }
+        .nav-text { opacity: 0; transition: opacity 0.3s ease; display: none; }
+        .sidebar:hover .nav-text { opacity: 1; display: inline; }
+        .nav-item:hover { color: var(--gold-muted); background: rgba(0, 0, 0, 0.04); }
+        .nav-item.active { background: var(--pearl-bg); color: var(--gold-muted); font-weight: 700; border: 1px solid var(--border-pearl); }
+
+        .main-workspace {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 32px 48px;
+            max-width: calc(100vw - var(--sidebar-width));
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            border-bottom: 2px solid #cbd5e1;
+            padding-bottom: 16px;
+        }
+
+        .header-title h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: var(--text-heading);
+        }
+
+        .header-title p { font-size: 0.9rem; color: var(--text-muted); font-weight: 500; }
+
+        .section-break-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-heading);
+            margin: 32px 0 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .section-break-title i { color: var(--gold); }
+
+        .table-scroll-frame {
+            background: #ffffff;
+            border-radius: 20px;
+            border: 1px solid var(--border-pearl);
+            padding: 20px;
+            box-shadow: var(--shadow-premium);
+            margin-bottom: 32px;
+            overflow-x: auto;
+        }
+
+        .roster-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .roster-table th {
+            font-size: 0.8rem;
+            font-weight: 800;
+            color: var(--text-heading);
+            text-transform: uppercase;
+            padding: 16px;
+            letter-spacing: 0.08em;
+            border-bottom: 2px solid #e2e8f0;
+            background: #f8fafc;
+        }
+
+        .roster-table td {
+            padding: 16px;
+            font-size: 0.9rem;
+            border-bottom: 1px solid #e2e8f0;
+            color: var(--text-main);
+            font-weight: 500;
+        }
+
+        .roster-row:hover { background-color: #f8fafc; }
+
+        .roster-shift-pill {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-align: center;
+            min-width: 90px;
+        }
+        .shift-approved { background-color: #bbf7d0; color: var(--success); border: 1px solid #4ade80; }
+        .shift-pending  { background-color: #fef3c7; color: var(--warning); border: 1px dashed #fcd34d; }
+        .shift-morning  {
+            background-color: #fef3c7;
+            color: var(--warning);
+            border: 1px dashed #fcd34d;
+            cursor: pointer;
+            border: none;
+            font-family: 'Inter', sans-serif;
+            font-weight: 800;
+            font-size: 0.75rem;
+        }
+        .shift-morning:hover { background-color: #fde68a; }
+
+        .shift-off {
+            color: #cbd5e1;
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+
+        .agency-header-cell {
+            background-color: #f1f5f9 !important;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-heading);
+            text-align: center;
+            vertical-align: middle;
+            border-right: 2px solid var(--border-pearl);
+        }
+
+        .drop-zone {
+            min-height: 50px;
+            border-radius: 12px;
+            padding: 8px;
+            background-color: #f8fafc;
+            border: 2px dashed #cbd5e1;
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 6px;
+            align-items: center;
+        }
+        .drop-zone.zone-green  { background-color: rgba(22, 163, 74, 0.04);  border-color: #4ade80; }
+        .drop-zone.zone-yellow { background-color: rgba(217, 119, 6, 0.04);  border-color: #fcd34d; }
+
+        .user-card {
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            cursor: grab;
+            display: inline-flex;
+            align-items: center;
+            color: #ffffff;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+        .user-card:hover { transform: scale(1.03); }
+        .card-green  { background-color: var(--success); }
+        .card-yellow { background-color: var(--warning); }
+        .card-red    { background-color: var(--danger);  }
+
+        .monitor-btn {
+            background: #ffffff;
+            border: 1px solid var(--text-heading);
+            color: var(--text-heading);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.65rem;
+            font-weight: 800;
+            cursor: pointer;
+            text-transform: uppercase;
+            margin-left: 6px;
+        }
+        .monitor-btn:hover { background: var(--text-heading); color: #fff; }
+
+        /* ── Modals ─────────────────────────────────────────────────── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 2000;
+        }
+        .modal-overlay.open { opacity: 1; pointer-events: auto; }
+        .modal-window {
+            background: #fff;
+            padding: 32px;
+            border-radius: 24px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            border: 1px solid var(--border-pearl);
+        }
+        .modal-header {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-heading);
+            margin-bottom: 16px;
+            border-bottom: 2px solid #cbd5e1;
+            padding-bottom: 8px;
+        }
+        .modal-close { float: right; cursor: pointer; color: var(--text-muted); font-size: 1.2rem; font-weight: 700; }
+
+        .fulfillment-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #e2e8f0; font-size: 0.95rem; }
+        .fulfillment-row.fulfilled { color: var(--success); font-weight: 700; }
+        .fulfillment-row.missing   { color: var(--danger);  font-weight: 700; }
+
+        /* ── Morning modal slot options ─────────────────────────────── */
+        .slot-option-label {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 1.5px solid var(--border-pearl);
+            cursor: pointer;
+            transition: border-color 0.2s ease;
+        }
+        .slot-option-label:hover { border-color: var(--gold); }
+        .slot-option-label input[type="radio"] { accent-color: var(--gold); }
+
+        .kick-warning-box {
+            display: none;
+            background: rgba(185, 28, 28, 0.06);
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 16px;
+            font-size: 0.82rem;
+            color: var(--danger);
+            font-weight: 600;
+            border: 1px solid rgba(185, 28, 28, 0.15);
+        }
+
+        .btn-modal {
+            padding: 10px 22px;
+            border-radius: 100px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            border: 1px solid var(--border-pearl);
+            transition: all 0.2s ease;
+        }
+        .btn-modal-secondary { background: #fff; color: #999; }
+        .btn-modal-secondary:hover { color: var(--gold-muted); border-color: var(--gold-muted); }
+        .btn-modal-primary {
+            background: linear-gradient(135deg, var(--gold-muted), var(--gold));
+            color: #fff;
+            border: none;
+            box-shadow: 0 6px 16px rgba(163, 128, 28, 0.25);
+        }
+        .btn-modal-primary:hover { box-shadow: 0 10px 24px rgba(163, 128, 28, 0.35); transform: translateY(-1px); }
+    </style>
+</head>
+
+<body>
+
+    <div id="fulfillmentModal" class="modal-overlay" onclick="closeFulfillmentModal()">
+        <div class="modal-window" onclick="event.stopPropagation()">
+            <span class="modal-close" onclick="closeFulfillmentModal()">✕</span>
+            <h3 class="modal-header" id="modalRosterTitle">Fulfillment Audit</h3>
+            <div id="modalFulfillmentContent"></div>
+        </div>
+    </div>
+
+    <div id="morningModal" class="modal-overlay" onclick="closeMorningModal()">
+        <div class="modal-window" onclick="event.stopPropagation()" style="max-width: 460px;">
+            <span class="modal-close" onclick="closeMorningModal()">✕</span>
+            <h3 class="modal-header" id="morningModalTitle">Assign Morning Slot</h3>
+            <p id="morningModalSub" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;"></p>
+
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+                {% for s in ['7-12', '8-1', '9-2'] %}
+                <label class="slot-option-label" id="opt-label-{{ s|replace('-','_') }}">
+                    <input type="radio" name="morning_slot" value="{{ s }}">
+                    <div>
+                        <div style="font-weight: 700; color: var(--text-heading); font-size: 0.9rem;">{{ s }}</div>
+                        <div class="slot-cap-info" data-slot="{{ s }}" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;"></div>
+                    </div>
+                </label>
+                {% endfor %}
+            </div>
+
+            <div id="kickWarning" class="kick-warning-box">
+                <i class="fa-solid fa-triangle-exclamation" style="margin-right: 6px;"></i>
+                This slot is full. Confirming will displace the weakest eligible occupant.
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px; padding-top: 8px;">
+                <button class="btn-modal btn-modal-secondary" onclick="closeMorningModal()">Cancel</button>
+                <button class="btn-modal btn-modal-primary" onclick="confirmMorningSlot()">Confirm Assignment</button>
+            </div>
+        </div>
+    </div>
+
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <i class="fa-solid fa-crown"></i>
+            <span class="brand-text">EMBU Portal</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('admin.Admin_Dashboard') }}" class="nav-item">
+                <i class="fa-solid fa-users"></i> <span class="nav-text">Staff Directory</span>
+            </a>
+            <a href="{{ url_for('shifts.admin_shift_dashboard') }}" class="nav-item active">
+                <i class="fa-solid fa-calendar-check"></i> <span class="nav-text">Schedule Grid</span>
+            </a>
+            <a href="{{ url_for('shifts.admin_shift_settings') }}" class="nav-item">
+                <i class="fa-solid fa-gears"></i> <span class="nav-text">Portal Settings</span>
+            </a>
+        </nav>
+    </aside>
+
+    <main class="main-workspace">
+        <div class="header-section">
+            <div class="header-title">
+                <h1>Command Operations Center</h1>
+                <p>Hybrid Master Duty Roster — Live Interaction Grid</p>
+            </div>
+            <div>
+                <button class="btn-modal btn-modal-primary" style="background: linear-gradient(135deg, var(--danger), #ef4444); box-shadow: 0 6px 16px rgba(185, 28, 28, 0.25);" onclick="clearAllShifts()">
+                    <i class="fa-solid fa-trash-can" style="margin-right: 6px;"></i> Clear All Shifts
+                </button>
+            </div>
+        </div>
+
+        <h2 class="section-break-title"><i class="fa-solid fa-hotel"></i> In-House Staff Roster (Hotel Division)</h2>
+        <div class="table-scroll-frame">
+            <table class="roster-table">
+                <thead>
+                    <tr>
+                        <th style="width: 240px;">Employee Executive</th>
+                        <th style="width: 140px;">Access Role</th>
+                        {% for day in days %}
+                        <th style="text-align: center;">
+                            {{ day }}
+                            <span style="font-size: 0.65rem; display: block; color: var(--text-muted);">{{ day_dates[day] }}</span>
+                        </th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for emp in hotel_roster %}
+                    <tr class="roster-row">
+                        <td>
+                            <div style="font-weight: 700; color: var(--text-heading);">{{ emp.user_name }}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">{{ emp.email }}</div>
+                        </td>
+                        <td><span style="color: var(--text-heading); font-weight: 700;">{{ emp.user_role }}</span></td>
+
+                        {% for day in days %}
+                        <td style="text-align: center;">
+                            {% if emp.schedule[day] %}
+                                {% set shift = emp.schedule[day] %}
+                                {% if shift.is_morning %}
+                                    <button class="roster-shift-pill shift-morning"
+                                            data-app-id="{{ shift.app_id }}"
+                                            data-user-name="{{ emp.user_name }}"
+                                            data-day="{{ day }}"
+                                            onclick="openMorningModal(this)">
+                                        <i class="fa-solid fa-clock-rotate-left" style="margin-right: 5px; font-size: 0.65rem;"></i>Morning ▾
+                                    </button>
+                                {% else %}
+                                    <span class="roster-shift-pill {% if shift.status == 'approved' %}shift-approved{% else %}shift-pending{% endif %}">
+                                        {{ shift.shift_time }}
+                                    </span>
+                                {% endif %}
+                            {% else %}
+                                <span class="shift-off">Off</span>
+                            {% endif %}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <h2 class="section-break-title"><i class="fa-solid fa-shuttle-space"></i> External Agency Manning Matrix</h2>
+        <div class="table-scroll-frame">
+            <table class="roster-table" style="min-width: 1300px;">
+                <thead>
+                    <tr>
+                        <th style="width: 160px;">Agency</th>
+                        <th style="width: 140px;">Shift Lane</th>
+                        {% for day in days %}
+                        <th>{{ day }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for agency in external_agencies %}
+                        {% for slot in slots %}
+                        <tr>
+                            {% if loop.first %}
+                            <td class="agency-header-cell" rowspan="{{ slots|length }}">{{ agency.agency_name }}</td>
+                            {% endif %}
+                            <td style="font-weight: 800; color: var(--text-heading);">
+                                {{ slot }}
+                                {% set cap_info = capacities.get('Monday', {}).get(slot, {'required_role': ''}) %}
+                                <button type="button" class="monitor-btn"
+                                        data-slot="{{ slot }}"
+                                        data-agency="{{ agency.agency_name }}"
+                                        data-required="{{ cap_info.required_role }}"
+                                        onclick="triggerFulfillmentModal(this)">
+                                    <i class="fa-solid fa-eye"></i> Audit
+                                </button>
+                            </td>
+
+                            {% for day in days %}
+                            {% set day_cap = capacities.get(day, {}).get(slot, {'capacity': 0}) %}
+                            <td>
+                                <div class="cap-label"
+                                     id="cap-lbl-{{ day }}-{{ agency.agency_name|replace(' ', '_')|replace('/', '_') }}-{{ slot }}"
+                                     data-max="{{ day_cap.capacity }}"
+                                     style="font-size: 0.75rem; font-weight: 800; color: var(--text-heading); margin-bottom: 4px;">
+                                    {% set global_green = namespace(total=0) %}
+                                    {% for ag in external_agencies %}
+                                        {% set global_green.total = global_green.total + grid_data[day][ag.agency_name][slot]['green']|length %}
+                                    {% endfor %}
+                                    {% for emp in hotel_roster %}
+                                        {% if emp.schedule[day] and emp.schedule[day].status == 'approved' and emp.schedule[day].shift_time == slot %}
+                                            {% set global_green.total = global_green.total + 1 %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    Cap: <span class="current-total">{{ global_green.total }}</span>/{{ day_cap.capacity }}
+                                </div>
+                                <div class="drop-zone zone-green" data-zone="green" data-day="{{ day }}" data-slot="{{ slot }}" data-agency="{{ agency.agency_name }}">
+                                    {% for user in grid_data[day][agency.agency_name][slot]['green'] %}
+                                    <div class="user-card card-green" draggable="true"
+                                         data-app-id="{{ user.app_id }}"
+                                         data-user-id="{{ user.user_id }}"
+                                         data-orig-slot="{{ user.orig_slot }}"
+                                         data-day="{{ day }}"
+                                         data-positions="{{ user.positions }}"
+                                         data-user-name="{{ user.name }}"
+                                         data-user-credit="{{ user.credit }}"
+                                         data-agency="{{ agency.agency_name }}">
+                                        {{ user.name }} (Cr: {{ user.credit }})
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                <div class="drop-zone zone-yellow" data-zone="yellow" data-day="{{ day }}" data-slot="{{ slot }}" data-agency="{{ agency.agency_name }}">
+                                    {% for user in grid_data[day][agency.agency_name][slot]['yellow'] %}
+                                    <div class="user-card card-yellow" draggable="true"
+                                         data-app-id="{{ user.app_id }}"
+                                         data-user-id="{{ user.user_id }}"
+                                         data-orig-slot="{{ user.orig_slot }}"
+                                         data-day="{{ day }}"
+                                         data-positions="{{ user.positions }}"
+                                         data-user-name="{{ user.name }}"
+                                         data-user-credit="{{ user.credit }}"
+                                         data-agency="{{ agency.agency_name }}"
+                                         {% if user.orig_slot == 'Morning' %}
+                                         onclick="openMorningModal(this)"
+                                         style="cursor: pointer;"
+                                         {% endif %}>
+                                        {{ user.name }} {% if user.orig_slot == 'Morning' %}(Flex) ▾{% else %}(Cr: {{ user.credit }}){% endif %}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% for day in days %}
+            {% for slot in slots %}
+                {% set inhouse_count = namespace(val=0) %}
+                {% for emp in hotel_roster %}
+                    {% if emp.schedule[day] and emp.schedule[day].status == 'approved' and emp.schedule[day].shift_time == slot %}
+                        {% set inhouse_count.val = inhouse_count.val + 1 %}
+                    {% endif %}
+                {% endfor %}
+                <span 
+                    data-inhouse-day="{{ day }}" 
+                    data-inhouse-slot="{{ slot }}" 
+                    data-inhouse-count="{{ inhouse_count.val }}"
+                    style="display:none;">
+                </span>
+            {% endfor %}
+        {% endfor %}
+    </main>
+
+    <script type="application/json" id="capacities-data">{{ capacities | tojson }}</script>
+    <script type="application/json" id="grid-data">{{ grid_data | tojson }}</script>
+    <script>
+        
+        var capacities = JSON.parse(document.getElementById('capacities-data').textContent);
+        var gridData   = JSON.parse(document.getElementById('grid-data').textContent);
+        let draggedElement = null;
+        let sourceZone     = null;
+
+        ChilCardEventsRegistration(document.querySelectorAll('.user-card'));
+
+        function ChilCardEventsRegistration(cards) {
+            cards.forEach(card => {
+                card.addEventListener('dragstart', function (e) {
+                    draggedElement = this;
+                    sourceZone     = this.closest('.drop-zone');
+                    e.dataTransfer.setData('text/plain', this.getAttribute('data-user-id'));
+                });
+            });
+        }
+
+        function recalculateCapCounters(day, slot) {
+            const allGreenZones = document.querySelectorAll(
+                `.drop-zone.zone-green[data-day="${day}"][data-slot="${slot}"]`
+            );
+            let globalTotal = 0;
+            allGreenZones.forEach(zone => {
+                globalTotal += zone.querySelectorAll('.user-card').length;
+            });
+
+            const inhouseCount = parseInt(
+                document.querySelector(`[data-inhouse-day="${day}"][data-inhouse-slot="${slot}"]`)
+                    ?.getAttribute('data-inhouse-count') || 0
+            );
+
+            const total = globalTotal + inhouseCount;
+
+            document.querySelectorAll(`[id^="cap-lbl-${day}-"][id$="-${slot}"]`).forEach(capBox => {
+                capBox.querySelector('.current-total').innerText = total;
+            });
+        }
+
+        document.querySelectorAll('.drop-zone').forEach(zone => {
+            zone.addEventListener('dragover', function (e) { e.preventDefault(); });
+            zone.addEventListener('drop', function (e) {
+                e.preventDefault();
+                if (!draggedElement) return;
+
+                const targetZoneType = this.getAttribute('data-zone');
+                const targetDay      = this.getAttribute('data-day');
+                const targetSlot     = this.getAttribute('data-slot');
+                const targetAgency   = this.getAttribute('data-agency');
+                const userId         = draggedElement.getAttribute('data-user-id');
+                const origSlot       = draggedElement.getAttribute('data-orig-slot');
+                const originDay      = draggedElement.getAttribute('data-day');
+                const sourceAgency   = draggedElement.getAttribute('data-agency');
+
+                if (originDay !== targetDay || sourceAgency !== targetAgency) {
+                    alert("Shifts can only be moved within the same agency lane and operational date framework.");
+                    return;
+                }
+
+                // Protect specific lane workers from cross-lane waitlist conversion accidents
+                if (origSlot !== 'Morning' && origSlot !== targetSlot) {
+                    alert(`This employee originally applied for a specific shift (${origSlot}) and cannot be placed into the ${targetSlot} waitlist context.`);
+                    return;
+                }
+
+                let backendStatus = (targetZoneType === 'green') ? 'approved' : 'pending';
+
+                fetch('/api/update_application_status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id:     userId,
+                        orig_slot:   origSlot,
+                        target_slot: targetSlot,
+                        day_of_week: targetDay,
+                        status:      backendStatus
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        if (targetZoneType === 'green') {
+                            draggedElement.className = 'user-card card-green';
+                            draggedElement.innerHTML = `${draggedElement.getAttribute('data-user-name')} (Cr: ${draggedElement.getAttribute('data-user-credit')})`;
+                            this.appendChild(draggedElement);
+
+                            if (origSlot === 'Morning') {
+                                document.querySelectorAll(
+                                    `.drop-zone.zone-yellow[data-day="${targetDay}"][data-agency="${targetAgency}"] .user-card[data-user-id="${userId}"]`
+                                ).forEach(card => card.remove());
+                            }
+                        } else {
+                            if (origSlot === 'Morning') {
+                                draggedElement.remove();
+                                document.querySelectorAll(`.drop-zone[data-day="${targetDay}"][data-agency="${targetAgency}"] .user-card[data-user-id="${userId}"]`).forEach(c => c.remove());
+
+                                ['7-12', '8-1', '9-2'].forEach(slotName => {
+                                    const yellowZone = document.querySelector(
+                                        `.drop-zone.zone-yellow[data-day="${targetDay}"][data-slot="${slotName}"][data-agency="${targetAgency}"]`
+                                    );
+                                    if (yellowZone) {
+                                        const clone = document.createElement('div');
+                                        clone.className = 'user-card card-yellow';
+                                        clone.setAttribute('draggable', 'true');
+                                        clone.setAttribute('data-app-id', draggedElement.getAttribute('data-app-id'));
+                                        clone.setAttribute('data-user-id', userId);
+                                        clone.setAttribute('data-orig-slot', 'Morning');
+                                        clone.setAttribute('data-day', targetDay);
+                                        clone.setAttribute('data-positions', draggedElement.getAttribute('data-positions'));
+                                        clone.setAttribute('data-user-name', draggedElement.getAttribute('data-user-name'));
+                                        clone.setAttribute('data-user-credit', draggedElement.getAttribute('data-user-credit'));
+                                        clone.setAttribute('data-agency', targetAgency);
+                                        clone.innerHTML = `${draggedElement.getAttribute('data-user-name')} (Flex) ▾`;
+                                        clone.setAttribute('onclick', 'openMorningModal(this)');
+                                        clone.style.cursor = 'pointer';
+                                        yellowZone.appendChild(clone);
+                                        ChilCardEventsRegistration([clone]);
+                                    }
+                                });
+                            } else {
+                                draggedElement.className = 'user-card card-yellow';
+                                draggedElement.innerHTML = `${draggedElement.getAttribute('data-user-name')} (Cr: ${draggedElement.getAttribute('data-user-credit')})`;
+                                this.appendChild(draggedElement);
+                            }
+                        }
+
+                        ['7-12', '8-1', '9-2', '6-12', 'Other'].forEach(s => recalculateCapCounters(targetDay, s));
+                        showToast("Roster configuration modified live.");
+                    }
+                });
+            });
+        });
+
+        /* ── Morning Modal ── */
+        let morningAppId   = null;
+        let morningDay     = null;
+        let morningName    = null;
+
+        function openMorningModal(btn) {
+            morningAppId = btn.getAttribute('data-app-id');
+            morningDay   = btn.getAttribute('data-day');
+            morningName  = btn.getAttribute('data-user-name');
+
+            document.getElementById('morningModalTitle').innerText = 'Assign Slot — ' + morningName;
+            document.getElementById('morningModalSub').innerText   = morningDay + ' · No time preference (Morning applicant)';
+
+            document.querySelectorAll('input[name="morning_slot"]').forEach(r => r.checked = false);
+            document.querySelectorAll('.slot-option-label').forEach(l => l.style.borderColor = 'var(--border-pearl)');
+            document.getElementById('kickWarning').style.display = 'none';
+
+            ['7-12', '8-1', '9-2'].forEach(slot => {
+                const cap = (capacities[morningDay] && capacities[morningDay][slot])
+                            ? capacities[morningDay][slot].capacity : 0;
+
+                let greenCount = 0;
+                if (gridData[morningDay]) {
+                    Object.values(gridData[morningDay]).forEach(agencySlots => {
+                        if (agencySlots[slot] && agencySlots[slot].green) {
+                            greenCount += agencySlots[slot].green.length;
+                        }
+                    });
+                }
+
+                const el = document.querySelector(`.slot-cap-info[data-slot="${slot}"]`);
+                if (el) {
+                    const remaining = cap - greenCount;
+                    el.innerText = remaining > 0
+                        ? `${greenCount}/${cap} filled · ${remaining} slot${remaining !== 1 ? 's' : ''} free`
+                        : `${greenCount}/${cap} · Full — someone may be displaced`;
+                }
+            });
+
+            document.getElementById('morningModal').classList.add('open');
+        }
+
+        function closeMorningModal() {
+            document.getElementById('morningModal').classList.remove('open');
+        }
+
+        document.querySelectorAll('input[name="morning_slot"]').forEach(radio => {
+            radio.addEventListener('change', function () {
+                document.querySelectorAll('.slot-option-label').forEach(l => l.style.borderColor = 'var(--border-pearl)');
+                this.closest('.slot-option-label').style.borderColor = 'var(--gold)';
+
+                const slot = this.value;
+                const cap  = (capacities[morningDay] && capacities[morningDay][slot])
+                             ? capacities[morningDay][slot].capacity : 0;
+
+                let greenCount = 0;
+                if (gridData[morningDay]) {
+                    Object.values(gridData[morningDay]).forEach(agencySlots => {
+                        if (agencySlots[slot] && agencySlots[slot].green) {
+                            greenCount += agencySlots[slot].green.length;
+                        }
+                    });
+                }
+
+                document.getElementById('kickWarning').style.display = greenCount >= cap ? 'block' : 'none';
+            });
+        });
+
+        function confirmMorningSlot() {
+            const selected = document.querySelector('input[name="morning_slot"]:checked');
+            if (!selected) { alert('Please select a slot first.'); return; }
+
+            fetch('/api/assign_morning_slot', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    app_id:      morningAppId,
+                    day_of_week: morningDay,
+                    target_slot: selected.value
+                })
+            })
+            .then(res => {
+                if (!res.ok) {
+                    return res.json().then(err => { throw new Error(err.message || "Priority displacement check failed."); });
+                }
+                return res.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    closeMorningModal();
+                    showToast(morningName + ' assigned to ' + selected.value + ' on ' + morningDay + '.');
+                    setTimeout(() => location.reload(), 900);
+                }
+            })
+            .catch(err => {
+                alert(err.message);
+            });
+        }
+
+        function clearAllShifts() {
+            const step1 = confirm("WARNING: This will completely DELETE all shift applications directly from the database table framework permanently.\n\nMake sure you have exported your Excel files first. Proceed?");
+            if (!step1) return;
+
+            const step2 = confirm("FINAL VERIFICATION: This cannot be undone. Are you absolutely sure you want to clear the entire roster database?");
+            if (step2) {
+                fetch('/api/clear_all_shifts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast("Roster table database drop successfully cleared.");
+                        setTimeout(() => location.reload(), 800);
+                    } else {
+                        alert("Database Clear Error: " + data.message);
+                    }
+                })
+                .catch(err => alert("Server parsing execution failure: " + err));
+            }
+        }
+
+        /* ── Fulfillment Audit Modal ── */
+        function triggerFulfillmentModal(btn) {
+            const slot           = btn.getAttribute('data-slot');
+            const agency         = btn.getAttribute('data-agency');
+            const requiredRawText = btn.getAttribute('data-required');
+
+            document.getElementById('modalRosterTitle').innerText = `${agency} - ${slot} Role Audit`;
+            const contentBox = document.getElementById('modalFulfillmentContent');
+            contentBox.innerHTML = '';
+
+            if (!requiredRawText) {
+                contentBox.innerHTML = '<p style="color:var(--text-main); font-style:italic; font-weight:600;">No custom roles enforced for this operational lane.</p>';
+                document.getElementById('fulfillmentModal').classList.add('open');
+                return;
+            }
+
+            const rules = requiredRawText.split(',');
+            let html = '';
+            const greenZoneCards = btn.closest('tr').querySelectorAll('.drop-zone.zone-green .user-card');
+            let filledPositionsStr = "";
+            greenZoneCards.forEach(c => { filledPositionsStr += c.getAttribute('data-positions').toLowerCase() + ", "; });
+
+            rules.forEach(r => {
+                let match = r.trim().match(/(\d+)x\s+(.+)/);
+                let count = 1;
+                let roleName = r.trim();
+                if (match) { count = parseInt(match[1]); roleName = match[2]; }
+                let matchesCount = 0;
+                const regex = new RegExp(roleName.toLowerCase(), 'g');
+                const occurrences = filledPositionsStr.match(regex);
+                if (occurrences) matchesCount = occurrences.length;
+                const stateClass = (matchesCount >= count) ? 'fulfilled' : 'missing';
+                const icon = (matchesCount >= count) ? '✅' : '❌';
+                html += `<div class="fulfillment-row ${stateClass}"><span>${icon} ${roleName}</span><span>Allocated: ${matchesCount} / Needed: ${count}</span></div>`;
+            });
+
+            contentBox.innerHTML = html;
+            document.getElementById('fulfillmentModal').classList.add('open');
+        }
+
+        function closeFulfillmentModal() {
+            document.getElementById('fulfillmentModal').classList.remove('open');
+        }
+
+        function showToast(msg) {
+            console.log("Toast Notification: " + msg);
+        }
+    </script>
+</body>
+</html>

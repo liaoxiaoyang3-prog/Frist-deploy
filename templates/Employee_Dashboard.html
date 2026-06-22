@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMBU Portal — Executive Schedule Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --gold:        #a3801c;
+            --gold-light:  #f4d03f;
+            --gold-muted:  #735c10;
+            --pearl:       #ffffff;
+            --pearl-bg:    #f1f5f9;
+            --text-main:   #0f172a;
+            --text-heading:#020617;
+            --text-muted:  #475569;
+            --border-pearl:#cbd5e1;
+            --transition:  cubic-bezier(0.23, 1, 0.32, 1);
+            --shadow-premium: 0 10px 30px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.08);
+            
+            --success:     #15803d;
+            --warning:     #b45309;
+            --danger:      #b91c1c;
+            --sidebar-width: 85px;
+            --sidebar-expanded: 280px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--pearl-bg);
+            display: flex;
+            height: 100vh;
+            max-height: 100vh;
+            overflow: hidden;
+            color: var(--text-main);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: #ffffff;
+            color: var(--text-heading);
+            padding: 40px 16px;
+            position: fixed;
+            top: 0; left: 0; bottom: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 1000;
+            border-right: 1px solid var(--border-pearl);
+            box-shadow: 10px 0 40px rgba(0, 0, 0, 0.01);
+            transition: width 0.4s var(--transition);
+            overflow: hidden;
+        }
+        .sidebar:hover { width: var(--sidebar-expanded); align-items: flex-start; padding: 40px 24px; }
+        
+        .sidebar-brand {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--text-heading);
+            margin-bottom: 48px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            white-space: nowrap;
+            width: 100%;
+            justify-content: center;
+        }
+        .sidebar:hover .sidebar-brand { justify-content: flex-start; }
+        .sidebar-brand i { color: var(--gold); font-size: 1.6rem; min-width: 32px; text-align: center; }
+        .brand-text { opacity: 0; transition: opacity 0.3s ease; display: none; }
+        .sidebar:hover .brand-text { opacity: 1; display: inline; }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 14px;
+            color: #475569;
+            text-decoration: none;
+            border-radius: 16px;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+            transition: all 0.3s var(--transition);
+            width: 100%;
+            justify-content: center;
+        }
+        .sidebar:hover .nav-item { justify-content: flex-start; padding: 14px 18px; }
+        .nav-item i { font-size: 1.2rem; min-width: 32px; text-align: center; }
+        .nav-text { opacity: 0; transition: opacity 0.3s ease; display: none; }
+        .sidebar:hover .nav-text { opacity: 1; display: inline; }
+        .nav-item.active { background: var(--pearl-bg); color: var(--gold-muted); font-weight: 700; border: 1px solid var(--border-pearl); }
+
+        .sidebar-footer { margin-top: auto; padding-top: 24px; border-top: 1px solid var(--border-pearl); width: 100%; }
+        .logout-btn {
+            display: flex; align-items: center; gap: 16px; color: var(--danger); text-decoration: none;
+            font-weight: 700; font-size: 0.85rem; padding: 14px; border-radius: 16px; width: 100%;
+            justify-content: center; white-space: nowrap;
+        }
+        .sidebar:hover .logout-btn { justify-content: flex-start; padding: 14px 18px; }
+
+        .main-workspace {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 32px 48px;
+            max-width: calc(100vw - var(--sidebar-width));
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            border-bottom: 2px solid #cbd5e1;
+            padding-bottom: 16px;
+        }
+        .header-title h1 { font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; font-weight: 700; color: var(--text-heading); }
+        .header-title p { font-size: 0.9rem; color: var(--text-muted); font-weight: 500; }
+
+        .banner {
+            padding: 14px 20px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .banner-success { background-color: #dcfce7; color: var(--success); border: 1px solid #bbf7d0; }
+        .banner-error { background-color: #ffeeeb; color: var(--danger); border: 1px solid #fcd3d3; }
+
+        .day-container-box {
+            background: #ffffff;
+            border-radius: 24px;
+            border: 1px solid var(--border-pearl);
+            padding: 24px;
+            box-shadow: var(--shadow-premium);
+            margin-bottom: 28px;
+        }
+
+        .day-header {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-heading);
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 8px;
+        }
+
+        .cards-flex-row {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .shift-interactive-card {
+            background: #ffffff;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 20px;
+            flex: 1;
+            min-width: 180px;
+            max-width: 240px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .shift-title-text { font-size: 1rem; font-weight: 800; color: var(--text-heading); margin-bottom: 4px; }
+        .shift-icon-label { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 16px; font-weight: 600; }
+
+        .card-status-badge {
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            padding: 4px 12px;
+            border-radius: 100px;
+            margin-bottom: 12px;
+            letter-spacing: 0.05em;
+        }
+        .badge-pending { background-color: #fef3c7; color: var(--warning); border: 1px dashed #fcd34d; }
+
+        .btn-submit-action {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border-pearl);
+            background-color: #ffffff;
+            color: var(--text-heading);
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-submit-action:hover { background-color: var(--text-heading); color: #ffffff; border-color: var(--text-heading); }
+
+        .btn-withdraw-action {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #fca5a5;
+            background-color: #fff5f5;
+            color: var(--danger);
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-withdraw-action:hover { background-color: var(--danger); color: #ffffff; border-color: var(--danger); }
+
+        .shift-interactive-card.disabled-locked {
+            opacity: 0.35;
+            pointer-events: none;
+            background-color: #f1f5f9;
+            border-color: #e2e8f0;
+        }
+
+        .shift-interactive-card.active-selected {
+            border-color: var(--gold);
+            background-color: rgba(180, 150, 50, 0.02);
+            box-shadow: 0 4px 12px rgba(163, 128, 28, 0.08);
+        }
+
+        .custom-time-input-frame {
+            width: 100%;
+            padding: 6px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 10px;
+            outline: none;
+        }
+        .custom-time-input-frame:focus { border-color: var(--gold); }
+    </style>
+</head>
+
+<body>
+
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <i class="fa-solid fa-crown"></i>
+            <span class="brand-text">EMBU Portal</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('employee.Employee_Dashboard') }}" class="nav-item active">
+                <i class="fa-solid fa-calendar-days"></i> <span class="nav-text">My Schedule</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="{{ url_for('auth.logout') }}" class="logout-btn">
+                <i class="fa-solid fa-power-off"></i> <span class="nav-text">Logout</span>
+            </a>
+        </div>
+    </aside>
+
+    <main class="main-workspace">
+        <div class="header-section">
+            <div class="header-title">
+                <h1>Shift Management Dashboard</h1>
+                <p>Welcome back, Executive <strong>{{ user_name }}</strong></p>
+            </div>
+        </div>
+
+        {% if request.args.get('success') %}
+        <div class="banner banner-success">
+            <i class="fa-solid fa-circle-check"></i> {{ request.args.get('success') }}
+        </div>
+        {% endif %}
+        {% if request.args.get('error') %}
+        <div class="banner banner-error">
+            <i class="fa-solid fa-circle-exclamation"></i> {{ request.args.get('error') }}
+        </div>
+        {% endif %}
+
+        {% for day in days_list %}
+            <div class="day-container-box">
+                <h2 class="day-header">{{ day }}</h2>
+                
+                {% set day_slots = user_apps[day] if day in user_apps else {} %}
+                {% set has_morning_app = ('Morning' in day_slots) or ('7-12' in day_slots) or ('8-1' in day_slots) or ('9-2' in day_slots) %}
+
+                <div class="cards-flex-row">
+                    
+                    {% set is_active = '7-12' in day_slots %}
+                    {% set is_locked = has_morning_app and not is_active %}
+                    <div class="shift-interactive-card {% if is_active %}active-selected{% elif is_locked %}disabled-locked{% endif %}">
+                        <div class="shift-title-text">7:00 AM - 12:00 PM</div>
+                        <div class="shift-icon-label"><i class="fa-regular fa-clock"></i> Early Morning</div>
+                        {% if is_active %}
+                            <span class="card-status-badge badge-pending">Pending Waitlist</span>
+                            <form action="{{ url_for('employee.delete_shift', day_of_week=day, shift_time='7-12') }}" method="POST" style="width:100%;">
+                                <button type="submit" class="btn-withdraw-action">Withdraw</button>
+                            </form>
+                        {% else %}
+                            <form action="{{ url_for('employee.apply_shift') }}" method="POST" style="width:100%;">
+                                <input type="hidden" name="day_of_week" value="{{ day }}">
+                                <input type="hidden" name="shift_time" value="7-12">
+                                <button type="submit" class="btn-submit-action">Apply</button>
+                            </form>
+                        {% endif %}
+                    </div>
+
+                    {% set is_active = '8-1' in day_slots %}
+                    {% set is_locked = has_morning_app and not is_active %}
+                    <div class="shift-interactive-card {% if is_active %}active-selected{% elif is_locked %}disabled-locked{% endif %}">
+                        <div class="shift-title-text">8:00 AM - 1:00 PM</div>
+                        <div class="shift-icon-label"><i class="fa-regular fa-clock"></i> Mid Morning</div>
+                        {% if is_active %}
+                            <span class="card-status-badge badge-pending">Pending Waitlist</span>
+                            <form action="{{ url_for('employee.delete_shift', day_of_week=day, shift_time='8-1') }}" method="POST" style="width:100%;">
+                                <button type="submit" class="btn-withdraw-action">Withdraw</button>
+                            </form>
+                        {% else %}
+                            <form action="{{ url_for('employee.apply_shift') }}" method="POST" style="width:100%;">
+                                <input type="hidden" name="day_of_week" value="{{ day }}">
+                                <input type="hidden" name="shift_time" value="8-1">
+                                <button type="submit" class="btn-submit-action">Apply</button>
+                            </form>
+                        {% endif %}
+                    </div>
+
+                    {% set is_active = '9-2' in day_slots %}
+                    {% set is_locked = has_morning_app and not is_active %}
+                    <div class="shift-interactive-card {% if is_active %}active-selected{% elif is_locked %}disabled-locked{% endif %}">
+                        <div class="shift-title-text">9:00 AM - 2:00 PM</div>
+                        <div class="shift-icon-label"><i class="fa-regular fa-clock"></i> Late Morning</div>
+                        {% if is_active %}
+                            <span class="card-status-badge badge-pending">Pending Waitlist</span>
+                            <form action="{{ url_for('employee.delete_shift', day_of_week=day, shift_time='9-2') }}" method="POST" style="width:100%;">
+                                <button type="submit" class="btn-withdraw-action">Withdraw</button>
+                            </form>
+                        {% else %}
+                            <form action="{{ url_for('employee.apply_shift') }}" method="POST" style="width:100%;">
+                                <input type="hidden" name="day_of_week" value="{{ day }}">
+                                <input type="hidden" name="shift_time" value="9-2">
+                                <button type="submit" class="btn-submit-action">Apply</button>
+                            </form>
+                        {% endif %}
+                    </div>
+
+                    {% set is_active = 'Morning' in day_slots %}
+                    {% set is_locked = has_morning_app and not is_active %}
+                    <div class="shift-interactive-card {% if is_active %}active-selected{% elif is_locked %}disabled-locked{% endif %}">
+                        <div class="shift-title-text" style="color: var(--gold);">Morning Flex Allocation</div>
+                        <div class="shift-icon-label"><i class="fa-solid fa-wand-magic-sparkles"></i> All Morning Slots</div>
+                        {% if is_active %}
+                            <span class="card-status-badge badge-pending">Pending Waitlist</span>
+                            <form action="{{ url_for('employee.delete_shift', day_of_week=day, shift_time='Morning') }}" method="POST" style="width:100%;">
+                                <button type="submit" class="btn-withdraw-action">Withdraw Request</button>
+                            </form>
+                        {% else %}
+                            <form action="{{ url_for('employee.apply_shift') }}" method="POST" style="width:100%;">
+                                <input type="hidden" name="day_of_week" value="{{ day }}">
+                                <input type="hidden" name="shift_time" value="Morning">
+                                <button type="submit" class="btn-submit-action" style="border-color: var(--gold); color: var(--gold);">Apply Flex Morning</button>
+                            </form>
+                        {% endif %}
+                    </div>
+
+                    {% set is_active = '6-12' in day_slots %}
+                    <div class="shift-interactive-card {% if is_active %}active-selected{% endif %}">
+                        <div class="shift-title-text">6:00 PM - 12:00 AM</div>
+                        <div class="shift-icon-label"><i class="fa-solid fa-moon"></i> Night Shift</div>
+                        {% if is_active %}
+                            <span class="card-status-badge badge-pending">Pending</span>
+                            <form action="{{ url_for('employee.delete_shift', day_of_week=day, shift_time='6-12') }}" method="POST" style="width:100%;">
+                                <button type="submit" class="btn-withdraw-action">Withdraw</button>
+                            </form>
+                        {% else %}
+                            <form action="{{ url_for('employee.apply_shift') }}" method="POST" style="width:100%;">
+                                <input type="hidden" name="day_of_week" value="{{ day }}">
+                                <input type="hidden" name="shift_time" value="6-12">
+                                <button type="submit" class="btn-submit-action">Apply</button>
+                            </form>
+                        {% endif %}
+                    </div>
+
+                    {% set is_active = 'Other' in day_slots %}
+                    <div class="shift-interactive-card {% if is_active %}active-selected{% endif %}">
+                        <div class="shift-title-text">Custom Time Frame</div>
+                        <div class="shift-icon-label"><i class="fa-solid fa-user-gear"></i> Custom</div>
+                        {% if is_active %}
+                            <div style="font-size:0.85rem; font-weight:700; color:var(--text-heading); margin-bottom:10px;">
+                                Setup: {{ day_slots['Other'].custom_time }}
+                            </div>
+                            <span class="card-status-badge badge-pending">Pending</span>
+                            <form action="{{ url_for('employee.delete_shift', day_of_week=day, shift_time='Other') }}" method="POST" style="width:100%;">
+                                <button type="submit" class="btn-withdraw-action">Withdraw</button>
+                            </form>
+                        {% else %}
+                            <form action="{{ url_for('employee.apply_shift') }}" method="POST" style="width:100%;">
+                                <input type="hidden" name="day_of_week" value="{{ day }}">
+                                <input type="hidden" name="shift_time" value="Other">
+                                <input type="text" name="custom_time" class="custom-time-input-frame" placeholder="Ex: 10-3" required autocomplete="off">
+                                <button type="submit" class="btn-submit-action">Apply Custom</button>
+                            </form>
+                        {% endif %}
+                    </div>
+
+                </div>
+            </div>
+        {% endfor %}
+    </main>
+
+</body>
+</html>

@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMBU Portal — Shift Configuration</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        /* ─── Global Reset (FIXES OVERLAPPING & OVERFLOW) ───────────── */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* ─── Gold & White Luxury Tokens ───────────────────────────── */
+        :root {
+            --gold:        #d4af37;
+            --gold-light:  #f4d03f;
+            --gold-muted:  #c5a02e;
+            --pearl:       #ffffff;
+            --pearl-bg:    #fdfdfd;
+            --text-main:   #5c5c5c;
+            --text-heading: #2d2d2d;
+            --border-pearl:rgba(212, 175, 55, 0.15);
+            --transition:  cubic-bezier(0.23, 1, 0.32, 1);
+            --shadow-premium: 0 20px 40px rgba(212, 175, 55, 0.05), 0 0 0 1px rgba(212, 175, 55, 0.08);
+            
+            --success:     #27ae60;
+            --warning:     #f39c12;
+            --danger:      #e74c3c;
+
+            /* Sidebar Widths */
+            --sidebar-width: 80px;
+            --sidebar-expanded: 280px;
+        }
+
+        /* ─── Base Layout ───────────────────────────────────────────── */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fdfdfd;
+            display: flex;
+            min-height: 100vh;
+            color: var(--text-main);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ─── Slim Iconic Sidebar ───────────────────────────────────── */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: #ffffff;
+            color: var(--text-heading);
+            padding: 40px 16px;
+            position: fixed;
+            top: 0; left: 0; bottom: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 1000;
+            border-right: 1px solid var(--border-pearl);
+            box-shadow: 10px 0 40px rgba(212, 175, 55, 0.03);
+            transition: width 0.4s var(--transition);
+            overflow: hidden;
+        }
+
+        .sidebar:hover { width: var(--sidebar-expanded); align-items: flex-start; padding: 40px 24px; }
+
+        .sidebar-brand {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--text-heading);
+            margin-bottom: 48px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            white-space: nowrap;
+            width: 100%;
+            justify-content: center;
+        }
+        .sidebar:hover .sidebar-brand { justify-content: flex-start; }
+
+        .sidebar-brand i { color: var(--gold); font-size: 1.6rem; min-width: 32px; text-align: center; }
+        .brand-text { opacity: 0; transition: opacity 0.3s ease; display: none; }
+        .sidebar:hover .brand-text { opacity: 1; display: inline; }
+
+        .sidebar-nav { width: 100%; }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 14px;
+            color: #bbb;
+            text-decoration: none;
+            border-radius: 16px;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+            transition: all 0.3s var(--transition);
+            white-space: nowrap;
+            width: 100%;
+            justify-content: center;
+        }
+        .sidebar:hover .nav-item { justify-content: flex-start; padding: 14px 18px; }
+
+        .nav-item i { font-size: 1.2rem; min-width: 32px; text-align: center; }
+        .nav-text { opacity: 0; transition: opacity 0.3s ease; display: none; }
+        .sidebar:hover .nav-text { opacity: 1; display: inline; }
+
+        .nav-item:hover { color: var(--gold-muted); background: rgba(212, 175, 55, 0.05); }
+
+        .nav-item.active {
+            background: #fff;
+            color: var(--gold-muted);
+            font-weight: 700;
+            border: 1px solid var(--border-pearl);
+            box-shadow: 0 10px 20px rgba(212, 175, 55, 0.05);
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-pearl);
+            width: 100%;
+        }
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            color: var(--danger);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.85rem;
+            padding: 14px;
+            border-radius: 16px;
+            transition: all 0.3s ease;
+            width: 100%;
+            justify-content: center;
+            white-space: nowrap;
+        }
+        .sidebar:hover .logout-btn { justify-content: flex-start; padding: 14px 18px; }
+        .logout-btn:hover { background: rgba(231, 76, 60, 0.05); }
+
+        /* ─── Main Workspace ────────────────────────────────────────── */
+        .main-workspace {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 48px 80px;
+            max-width: 1600px;
+            transition: margin-left 0.4s var(--transition);
+        }
+
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .header-title h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.4rem;
+            font-weight: 600;
+            color: var(--text-heading);
+            margin: 0;
+        }
+
+        .header-title p {
+            font-size: 0.85rem;
+            color: #bbb;
+            margin-top: 4px;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+        }
+
+        .right-buttons { display: flex; align-items: center; gap: 12px; }
+
+        .date-badge {
+            background: #ffffff;
+            padding: 10px 20px;
+            border-radius: 100px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--gold-muted);
+            border: 1px solid var(--border-pearl);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, var(--gold-muted), var(--gold));
+            color: #fff;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 100px;
+            font-weight: 700;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            transition: all 0.3s var(--transition);
+            box-shadow: 0 10px 20px rgba(212, 175, 55, 0.2);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-save:hover { transform: translateY(-2px); box-shadow: 0 15px 30px rgba(212, 175, 55, 0.3); }
+
+        /* ─── Automation Ribbon ─────────────────────────────────────── */
+        .automation-ribbon {
+            background: #ffffff;
+            border: 1px solid var(--border-pearl);
+            border-radius: 24px;
+            padding: 24px 32px;
+            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow-premium);
+            flex-wrap: wrap;
+            gap: 24px;
+        }
+
+        .automation-label {
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: #bbb;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .automation-preset-group { display: flex; gap: 10px; }
+
+        .btn-preset {
+            background: #fff;
+            color: var(--text-main);
+            border: 1px solid #f0f0f0;
+            padding: 10px 18px;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-preset:hover { border-color: var(--gold-muted); color: var(--gold-muted); }
+
+        /* ─── Toggle Switch ─────────────────────────────────────────── */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: rgba(212, 175, 55, 0.03);
+            padding: 10px 20px;
+            border-radius: 100px;
+            border: 1px solid var(--border-pearl);
+        }
+
+        .toggle-text { font-size: 0.75rem; font-weight: 700; color: var(--text-heading); }
+
+        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background-color: #eee;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px; width: 18px;
+            left: 3px; bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        input:checked + .slider { background-color: var(--gold); }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        /* ─── Day Cards Grid ────────────────────────────────────────── */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .day-card {
+            background: white;
+            border-radius: 32px;
+            border: 1px solid var(--border-pearl);
+            padding: 32px;
+            box-shadow: var(--shadow-premium);
+            transition: transform 0.3s var(--transition);
+        }
+
+        .day-card:hover { transform: translateY(-5px); }
+
+        .card-header-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .day-card h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--text-heading);
+            margin: 0;
+        }
+
+        .btn-card-copy {
+            background: transparent;
+            border: none;
+            color: var(--gold-muted);
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: 100px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid var(--border-pearl);
+        }
+
+        .btn-card-copy:hover { background: var(--gold-muted); color: #fff; }
+
+        .subtitle-label {
+            font-size: 0.6rem;
+            font-weight: 800;
+            color: #bbb;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            display: block;
+            letter-spacing: 0.1em;
+        }
+
+        .comma-input {
+            width: 100%;
+            padding: 14px 20px;
+            border: 1px solid #f0f0f0;
+            border-radius: 16px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-heading);
+            margin-bottom: 24px;
+            background-color: #fcfcfc;
+            transition: all 0.3s ease;
+        }
+
+        .comma-input:focus {
+            outline: none;
+            border-color: var(--gold-muted);
+            background-color: #fff;
+            box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.05);
+        }
+
+        /* ─── Shift Config Rows ─────────────────────────────────────── */
+        .shift-config-row {
+            background: #fff;
+            border: 1px solid #f8f8f8;
+            border-radius: 20px;
+            padding: 16px;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .shift-config-row:hover { border-color: var(--border-pearl); box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
+        
+        .shift-controls-line {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .slot-lbl { font-weight: 700; font-size: 0.9rem; color: var(--text-heading); min-width: 60px; }
+        
+        .input-inline-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #fcfcfc;
+            border: 1px solid #f0f0f0;
+            padding: 8px 14px;
+            border-radius: 100px;
+        }
+
+        .row-cap-input {
+            border: none;
+            background: transparent;
+            width: 32px;
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: var(--gold-muted);
+            text-align: center;
+            outline: none;
+        }
+
+        .lbl-slots { font-size: 0.7rem; color: #bbb; font-weight: 700; text-transform: uppercase; }
+
+        /* ─── Dropdown System ───────────────────────────────────────── */
+        .custom-dropdown-container { position: relative; }
+
+        .dropdown-trigger-btn {
+            padding: 8px 16px;
+            border-radius: 100px;
+            border: 1px solid var(--border-pearl);
+            background: #fff;
+            font-size: 0.65rem;
+            color: var(--gold-muted);
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .dropdown-trigger-btn:hover { background: var(--gold-muted); color: #fff; }
+        
+        .dropdown-menu-list {
+            display: none;
+            position: absolute;
+            top: 100%; right: 0;
+            background: #fff;
+            border: 1px solid var(--border-pearl);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            flex-direction: column;
+            z-index: 10;
+            max-height: 200px;
+            overflow-y: auto;
+            min-width: 160px;
+            padding: 8px;
+            margin-top: 8px;
+        }
+
+        .dropdown-option {
+            padding: 10px 16px;
+            font-size: 0.75rem;
+            color: var(--text-main);
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .dropdown-option:hover { background: rgba(212, 175, 55, 0.05); color: var(--gold-muted); }
+
+        /* ─── Position Tags ─────────────────────────────────────────── */
+        .tags-wrapper { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+
+        .position-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.6rem;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 100px;
+            background: #fff;
+            color: var(--gold-muted);
+            border: 1px solid var(--border-pearl);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .position-tag .multiplier {
+            background: var(--gold-muted);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 100px;
+            font-size: 0.55rem;
+        }
+
+        .position-tag .remove-x { color: var(--danger); cursor: pointer; margin-left: 4px; font-size: 0.8rem; }
+
+        /* ─── Toast System ──────────────────────────────────────────── */
+        #toast-container { position: fixed; top: 40px; right: 40px; z-index: 9999; display: flex; flex-direction: column; gap: 12px; }
+        .toast {
+            display: flex; align-items: center; gap: 16px; min-width: 340px;
+            padding: 20px 24px; border-radius: 20px; background: #fff;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1); font-weight: 700; font-size: 0.85rem;
+            border-left: 6px solid var(--gold); transform: translateX(120%);
+            transition: transform 0.4s var(--transition);
+        }
+        .toast.show { transform: translateX(0); }
+        .toast-success { border-left-color: var(--success); color: var(--success); }
+        .toast-error { border-left-color: var(--danger); color: var(--danger); }
+    </style>
+</head>
+
+<body>
+
+    <div id="toast-container"></div>
+
+    <div id="flask-flash-messages" style="display: none;">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <span class="flash-delivery" data-category="{{ category }}" data-message="{{ message }}"></span>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <i class="fa-solid fa-crown"></i>
+            <span class="brand-text">EMBU Portal</span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('admin.Admin_Dashboard') }}" class="nav-item">
+                <i class="fa-solid fa-users"></i>
+                <span class="nav-text">Staff Directory</span>
+            </a>
+            <a href="{{ url_for('shifts.admin_shift_dashboard') }}" class="nav-item">
+                <i class="fa-solid fa-calendar-check"></i>
+                <span class="nav-text">Schedule Grid</span>
+            </a>
+            <a href="{{ url_for('shifts.admin_shift_settings') }}" class="nav-item active">
+                <i class="fa-solid fa-gears"></i>
+                <span class="nav-text">Portal Settings</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="{{ url_for('auth.logout') }}" class="logout-btn">
+                <i class="fa-solid fa-power-off"></i>
+                <span class="nav-text">Terminate Session</span>
+            </a>
+        </div>
+    </aside>
+
+    <main class="main-workspace">
+        <form action="{{ url_for('shifts.admin_update_settings') }}" method="POST" id="settings-form">
+            <div class="header-section">
+                <div class="header-title">
+                    <h1>Shift Configuration</h1>
+                    <p>Strategic Slot Allocation & Operational Parameters</p>
+                </div>
+                <div class="right-buttons">
+                    <div class="date-badge">
+                        <i class="fa-regular fa-calendar"></i> Current Cycle: 15/06/2026
+                    </div>
+                    <button type="submit" class="btn-save">
+                        <i class="fa-solid fa-floppy-disk"></i> Save Configuration
+                    </button>
+                </div>
+            </div>
+
+            <div class="automation-ribbon">
+                <div style="display: flex; align-items: center; gap: 32px; flex-wrap: wrap;">
+                    <div class="automation-label">
+                        <i class="fa-solid fa-wand-magic-sparkles" style="color: var(--gold)"></i>
+                        Layout Presets:
+                    </div>
+                    <div class="automation-preset-group">
+                        <button type="button" class="btn-preset" onclick="loadWeeklyPreset('standard')">
+                            Standard Week
+                        </button>
+                        <button type="button" class="btn-preset" onclick="loadWeeklyPreset('peak')">
+                            Holiday Peak
+                        </button>
+                        <button type="button" class="btn-preset" onclick="loadWeeklyPreset('clear')">
+                            Reset All
+                        </button>
+                    </div>
+                </div>
+
+                <div class="toggle-container">
+                    <span class="toggle-text">Staff Submissions:</span>
+                    <label class="switch">
+                        <input type="checkbox" name="applications_open" value="true" {% if applications_open == 'true' %}checked{% endif %}>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="cards-grid">
+                {% for day in days %}
+                    <div class="day-card" data-day="{{ day }}">
+                        <div class="card-header-wrapper">
+                            <h2>{{ day }}</h2>
+                            <button type="button" class="btn-card-copy" onclick="replicateDayConfig('{{ day }}')">
+                                <i class="fa-regular fa-copy"></i> Replicate Week
+                            </button>
+                        </div>
+                        <span class="subtitle-label">Operational Slot Sequence</span>
+                        
+                        {% set ns = namespace(val="") %}
+                        {% for slot in slots %}
+                            {% set config = capacities.get(day, {}).get(slot, {'capacity': 0, 'required_role': ''}) %}
+                            {% if loop.first %}
+                                {% set ns.val = config.capacity|string %}
+                            {% else %}
+                                {% set ns.val = ns.val ~ ", " ~ config.capacity|string %}
+                            {% endif %}
+                        {% endfor %}
+                        
+                        <input type="text" class="comma-input" id="macro_input_{{ day }}" data-day="{{ day }}" value="{{ ns.val }}" placeholder="Ex: 6, 7, 5, 5, 0">
+
+                        {% for slot in slots %}
+                            {% set config = capacities.get(day, {}).get(slot, {'capacity': 0, 'required_role': ''}) %}
+                            <div class="shift-config-row">
+                                <div class="shift-controls-line">
+                                    <span class="slot-lbl">{{ slot }}</span>
+                                    
+                                    <div class="input-inline-group">
+                                        <input type="number" class="row-cap-input" name="cap_{{ day }}_{{ slot }}" id="form_cap_{{ day }}_{{ slot }}" value="{{ config.capacity }}" min="0">
+                                        <span class="lbl-slots">slots</span>
+                                    </div>
+                                    
+                                    <div class="custom-dropdown-container">
+                                        <button type="button" class="dropdown-trigger-btn" onclick="toggleDropdownMenu(this, event)">+ Position</button>
+                                        <div class="dropdown-menu-list">
+                                            <div class="dropdown-option" onclick="handleOptionSelection(this, event)" data-day="{{ day }}" data-slot="{{ slot }}" data-role="Part Timer">Part Timer</div>
+                                            <div class="dropdown-option" onclick="handleOptionSelection(this, event)" data-day="{{ day }}" data-slot="{{ slot }}" data-role="In House">In House</div>
+                                            <div class="dropdown-option" onclick="handleOptionSelection(this, event)" data-day="{{ day }}" data-slot="{{ slot }}" data-role="Barista">Barista</div>
+                                            <div class="dropdown-option" onclick="handleOptionSelection(this, event)" data-day="{{ day }}" data-slot="{{ slot }}" data-role="Runner">Runner</div>
+                                            <div class="dropdown-option" onclick="handleOptionSelection(this, event)" data-day="{{ day }}" data-slot="{{ slot }}" data-role="Buffet">Buffet</div>
+                                            <div class="dropdown-option" onclick="handleOptionSelection(this, event)" data-day="{{ day }}" data-slot="{{ slot }}" data-role="Floor">Floor</div>
+                                            <div class="dropdown-option" onclick="handleOptionSelection(this, event)" data-day="{{ day }}" data-slot="{{ slot }}" data-role="Host">Host</div>
+                                            <div class="dropdown-option" onclick="handleOptionSelection(this, event)" data-day="{{ day }}" data-slot="{{ slot }}" data-role="Cashier">Cashier</div>
+                                            <div class="dropdown-option" onclick="handleOptionSelection(this, event)" data-day="{{ day }}" data-slot="{{ slot }}" data-role="Manager">Manager</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="tags-wrapper" id="wrapper-{{ day }}-{{ slot }}"></div>
+                                <input type="hidden" name="role_{{ day }}_{{ slot }}" id="form_role_{{ day }}_{{ slot }}" value="{{ config.required_role }}">
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+        </form>
+    </bone>
+
+    <div id="slots-metadata" data-slots='{{ slots|tojson }}' style="display: none;"></div>
+
+    <script>
+        const activeSlotsArray = JSON.parse(document.getElementById('slots-metadata').getAttribute('data-slots'));
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            const icon = type === 'success' ? '<i class="fa-solid fa-circle-check"></i>' : '<i class="fa-solid fa-circle-exclamation"></i>';
+            toast.innerHTML = `${icon} <span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 50);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 400);
+            }, 4000);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.flash-delivery').forEach(el => {
+                showToast(el.getAttribute('data-message'), el.getAttribute('data-category') === 'success' ? 'success' : 'error');
+            });
+        });
+
+        function replicateDayConfig(sourceDay) {
+            const macroValue = document.getElementById(`macro_input_${sourceDay}`).value;
+            document.querySelectorAll('.day-card').forEach(card => {
+                const targetDay = card.getAttribute('data-day');
+                if (targetDay === sourceDay) return;
+                document.getElementById(`macro_input_${targetDay}`).value = macroValue;
+                activeSlotsArray.forEach(slot => {
+                    const sourceCap = document.getElementById(`form_cap_${sourceDay}_${slot}`).value;
+                    const targetCapInput = document.getElementById(`form_cap_${targetDay}_${slot}`);
+                    if (targetCapInput) targetCapInput.value = sourceCap;
+                    const sourceWrapper = document.getElementById(`wrapper-${sourceDay}-${slot}`);
+                    const targetWrapper = document.getElementById(`wrapper-${targetDay}-${slot}`);
+                    if (sourceWrapper && targetWrapper) {
+                        targetWrapper.innerHTML = '';
+                        sourceWrapper.querySelectorAll('.active-tag').forEach(tag => {
+                            createActiveRoleBadgeElement(targetDay, slot, targetWrapper, tag.getAttribute('data-role-name'), parseInt(tag.querySelector('.count-val').innerText));
+                        });
+                        syncRoleStateStringAcrossHiddenInputs(targetDay, slot, targetWrapper);
+                    }
+                });
+            });
+            showToast("Configuration replicated across the week matrix.");
+        }
+
+        function loadWeeklyPreset(presetType) {
+            let pattern = presetType === 'standard' ? [4, 4, 3, 2, 0] : (presetType === 'peak' ? [6, 6, 5, 4, 2] : [0, 0, 0, 0, 0]);
+            const commaString = pattern.join(', ');
+            document.querySelectorAll('.comma-input').forEach(field => {
+                field.value = commaString;
+                field.dispatchEvent(new Event('input'));
+            });
+            if (presetType === 'standard' || presetType === 'peak') {
+                document.querySelectorAll('.day-card').forEach(card => {
+                    const day = card.getAttribute('data-day');
+                    const firstSlot = activeSlotsArray[0];
+                    const wrapper = document.getElementById(`wrapper-${day}-${firstSlot}`);
+                    if (wrapper && !wrapper.innerHTML.includes('Manager')) {
+                        createActiveRoleBadgeElement(day, firstSlot, wrapper, 'Manager', 1);
+                        syncRoleStateStringAcrossHiddenInputs(day, firstSlot, wrapper);
+                    }
+                });
+            } else if (presetType === 'clear') {
+                document.querySelectorAll('.tags-wrapper').forEach(w => {
+                    w.innerHTML = '';
+                    const hiddenInput = w.nextElementSibling;
+                    if (hiddenInput) hiddenInput.value = '';
+                });
+            }
+            showToast(`Preset "${presetType}" loaded successfully.`);
+        }
+
+        function toggleDropdownMenu(buttonElement, event) {
+            event.stopPropagation();
+            const targetMenu = buttonElement.nextElementSibling;
+            document.querySelectorAll('.dropdown-menu-list').forEach(menu => { if (menu !== targetMenu) menu.style.display = 'none'; });
+            targetMenu.style.display = targetMenu.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        function handleOptionSelection(optionElement, event) {
+            event.stopPropagation();
+            const day = optionElement.getAttribute('data-day');
+            const slot = optionElement.getAttribute('data-slot');
+            const roleName = optionElement.getAttribute('data-role');
+            const wrapper = document.getElementById(`wrapper-${day}-${slot}`);
+            if (!roleName || !wrapper) return;
+            let existingBadge = wrapper.querySelector(`[data-role-name="${roleName}"]`);
+            if (existingBadge) {
+                let countSpan = existingBadge.querySelector('.count-val');
+                let currentCount = (parseInt(countSpan.innerText) || 1) + 1;
+                countSpan.innerText = currentCount;
+                existingBadge.querySelector('.multiplier').innerText = `${currentCount}x`;
+            } else {
+                createActiveRoleBadgeElement(day, slot, wrapper, roleName, 1);
+            }
+            syncRoleStateStringAcrossHiddenInputs(day, slot, wrapper);
+        }
+
+        document.addEventListener('click', () => { document.querySelectorAll('.dropdown-menu-list').forEach(menu => menu.style.display = 'none'); });
+
+        document.querySelectorAll('.comma-input').forEach(macroField => {
+            macroField.addEventListener('input', function() {
+                const day = this.getAttribute('data-day');
+                const values = this.value.split(',').map(v => v.trim());
+                activeSlotsArray.forEach((slot, index) => {
+                    const rowInput = document.getElementById(`form_cap_${day}_${slot}`);
+                    if (rowInput) rowInput.value = (index < values.length && values[index] !== "") ? values[index] : "0";
+                });
+            });
+        });
+
+        document.querySelectorAll('.day-card').forEach(card => {
+            const day = card.getAttribute('data-day');
+            activeSlotsArray.forEach(slot => {
+                const wrapper = document.getElementById(`wrapper-${day}-${slot}`);
+                const roleHiddenInput = document.getElementById(`form_role_${day}_${slot}`);
+                const initialRolesRawText = roleHiddenInput ? roleHiddenInput.value : "";
+                if (initialRolesRawText && wrapper) {
+                    initialRolesRawText.split(',').forEach(roleSegment => {
+                        if (!roleSegment.trim()) return;
+                        let count = 1, roleName = roleSegment.trim();
+                        if (roleName.includes('x ')) { let pieces = roleName.split('x '); count = parseInt(pieces[0]) || 1; roleName = pieces[1]; }
+                        createActiveRoleBadgeElement(day, slot, wrapper, roleName, count);
+                    });
+                }
+            });
+        });
+
+        function createActiveRoleBadgeElement(day, slot, wrapper, roleName, count) {
+            const tag = document.createElement('div');
+            tag.className = 'position-tag active-tag';
+            tag.setAttribute('data-role-name', roleName);
+            tag.innerHTML = `<span class="multiplier">${count}x</span><span class="count-val" style="display:none;">${count}</span>${roleName}<span class="remove-x">✕</span>`;
+            tag.querySelector('.remove-x').addEventListener('click', (e) => { e.stopPropagation(); tag.remove(); syncRoleStateStringAcrossHiddenInputs(day, slot, wrapper); });
+            wrapper.appendChild(tag);
+        }
+
+        function syncRoleStateStringAcrossHiddenInputs(day, slot, wrapper) {
+            let tokens = [];
+            wrapper.querySelectorAll('.active-tag').forEach(tag => tokens.push(`${tag.querySelector('.count-val').innerText}x ${tag.getAttribute('data-role-name')}`));
+            const roleInput = document.getElementById(`form_role_${day}_${slot}`);
+            if (roleInput) roleInput.value = tokens.join(', ');
+        }
+    </script>
+</body>
+</html>
