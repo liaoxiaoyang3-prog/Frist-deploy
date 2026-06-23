@@ -17,7 +17,7 @@ def create_app():
     app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
 
     # Force the email sender to remain silent and bypass network calls:
-    app.config['MAIL_SUPPRESS_SEND'] = True
+    app.config['MAIL_SUPPRESS_SEND'] = False  # Set to True to suppress sending emails during development/testing
     
     # 3. Initialize Extensions
     mail.init_app(app)
