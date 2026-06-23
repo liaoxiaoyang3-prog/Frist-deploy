@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for,flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash
 from app.db import get_db_connection
 from app.decorators import login_required
 
@@ -11,25 +11,35 @@ MORNING_SLOTS = ['7-12', '8-1', '9-2', 'Morning']
 def Employee_Dashboard():
     user_id = request.cookies.get('user_id')
     user_name = request.cookies.get('user_name', default="Employee")
+    
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    cursor.execute("""
-        SELECT day_of_week, shift_time, custom_time, status, applied_at 
-        FROM shift_applications 
-        WHERE user_id = %s
-    """, (user_id,))
-    raw_applications = cursor.fetchall()
+    try:
+        # Query 1: Fetch all user shift applications
+        cursor.execute("""
+            SELECT day_of_week, shift_time, custom_time, status, applied_at 
+            FROM shift_applications 
+            WHERE user_id = %s
+        """, (user_id,))
+        raw_applications = cursor.fetchall()
 
-    cursor.execute("""
-        SELECT day_of_week, shift_time, assigned_at 
-        FROM hotel_shifts 
-        WHERE assigned_user_id = %s 
-        ORDER BY FIELD(day_of_week, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')
-    """, (user_id,))
-    confirmed_shifts = cursor.fetchall()
-    cursor.close()
-    conn.close()
+        # Query 2: Fetch all confirmed shifts from the pool
+        cursor.execute("""
+            SELECT day_of_week, shift_time, assigned_at 
+            FROM hotel_shifts 
+            WHERE assigned_user_id = %s 
+            ORDER BY FIELD(day_of_week, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')
+        """, (user_id,))
+        confirmed_shifts = cursor.fetchall()
+        
+    except Exception as err:
+        raw_applications = []
+        confirmed_shifts = []
+        flash(f"Error loading dashboard data: {err}")
+    finally:
+        cursor.close()
+        conn.close()
 
     user_apps = {}
     morning_blocked_days = set()
@@ -62,16 +72,6 @@ def Employee_Dashboard():
 @login_required
 def apply_shift():
     user_id = request.cookies.get('user_id')
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
-
-    cursor.execute("SELECT key_value FROM system_settings WHERE key_name = 'applications_open'")
-    setting = cursor.fetchone()
-    if not setting or setting['key_value'] != 'true':
-        cursor.close()
-        conn.close()
-        return redirect(url_for('employee.Employee_Dashboard', error="Applications are currently closed by the administrator."))
-
     day_of_week = request.form.get('day_of_week')
     shift_time = request.form.get('shift_time')
     custom_time = request.form.get('custom_time', '').strip()
@@ -79,11 +79,19 @@ def apply_shift():
     if shift_time != 'Other':
         custom_time = None
     elif not custom_time:
-        cursor.close()
-        conn.close()
         return redirect(url_for('employee.Employee_Dashboard', error="Please specify your custom time layout."))
 
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
     try:
+        # Check 1: System settings verification
+        cursor.execute("SELECT key_value FROM system_settings WHERE key_name = 'applications_open'")
+        setting = cursor.fetchone()
+        if not setting or setting['key_value'] != 'true':
+            return redirect(url_for('employee.Employee_Dashboard', error="Applications are currently closed by the administrator."))
+
+        # Check 2: Check for morning conflicts
         if shift_time in ['7-12', '8-1', '9-2', 'Morning']:
             cursor.execute("""
                 SELECT shift_time FROM shift_applications 
@@ -93,12 +101,15 @@ def apply_shift():
             if cursor.fetchone():
                 return redirect(url_for('employee.Employee_Dashboard', error=f"You already have a morning shift locked in for {day_of_week}."))
 
+        # Step 3: Insert the approved application
         cursor.execute("""
             INSERT INTO shift_applications (user_id, day_of_week, shift_time, custom_time, status)
             VALUES (%s, %s, %s, %s, 'pending')
         """, (user_id, day_of_week, shift_time, custom_time))
+        
         conn.commit()
         return redirect(url_for('employee.Employee_Dashboard', success="Shift applied successfully!"))
+        
     except Exception as err:
         return redirect(url_for('employee.Employee_Dashboard', error=f"Database Error: {err}"))
     finally:
@@ -114,8 +125,6 @@ def delete_shift(day_of_week, shift_time):
     cursor = conn.cursor()
     
     try:
-        # Clear the row using user_id and day_of_week.
-        # This bypasses any string mismatches if the manager changed 'Morning' to '7-12'
         cursor.execute("""
             DELETE FROM shift_applications 
             WHERE user_id = %s AND day_of_week = %s
